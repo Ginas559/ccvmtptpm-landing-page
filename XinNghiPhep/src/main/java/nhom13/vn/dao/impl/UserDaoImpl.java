@@ -6,7 +6,7 @@ import jakarta.persistence.TypedQuery;
 import nhom13.vn.config.JPAConfig;
 import nhom13.vn.dao.IUserDao;
 import nhom13.vn.entity.User;
-import nhom13.vn.*;
+
 
 public class UserDaoImpl implements IUserDao {
 
@@ -99,6 +99,56 @@ public class UserDaoImpl implements IUserDao {
         } finally {
 
             em.close();
+        }
+    }
+    
+    @Override
+    public User findByEmail(String email) {
+
+        EntityManager em = JPAConfig.getEntityManager();
+
+        try {
+
+            String jpql = "SELECT u FROM User u WHERE u.email = :email";
+
+            return em.createQuery(jpql, User.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+
+        } catch (Exception e) {
+
+            return null;
+
+        } finally {
+
+            em.close();
+
+        }
+    }
+    
+    @Override
+    public void update(User user) {
+
+        EntityManager em = JPAConfig.getEntityManager();
+        EntityTransaction trans = em.getTransaction();
+
+        try {
+
+            trans.begin();
+
+            em.merge(user);
+
+            trans.commit();
+
+        } catch (Exception e) {
+
+            trans.rollback();
+            throw e;
+
+        } finally {
+
+            em.close();
+
         }
     }
 }

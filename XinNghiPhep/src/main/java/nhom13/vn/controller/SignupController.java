@@ -18,7 +18,7 @@ public class SignupController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        req.getRequestDispatcher("/views/signup.jsp").forward(req, resp);
+        req.getRequestDispatcher("/view/signup.jsp").forward(req, resp);
 
     }
 
@@ -40,7 +40,7 @@ public class SignupController extends HttpServlet {
 
             req.setAttribute("errorMsg", "Username hoặc Email đã tồn tại");
 
-            req.getRequestDispatcher("/views/signup.jsp").forward(req, resp);
+            req.getRequestDispatcher("/view/signup.jsp").forward(req, resp);
 
         }
     }
