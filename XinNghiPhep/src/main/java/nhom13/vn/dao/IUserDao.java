@@ -1,0 +1,7 @@
+package nhom13.vn.dao;
+
+import nhom13.vn.entity.User;
+
+public interface IUserDao {
+    User findByUsernameAndPassword(String username, String password);
+}
