@@ -21,7 +21,7 @@ public class LoginController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+        req.getRequestDispatcher("/view/login.jsp").forward(req, resp);
     }
 
     @Override
@@ -38,13 +38,13 @@ public class LoginController extends HttpServlet {
             HttpSession session = req.getSession();
             session.setAttribute("account", user);
 
-            resp.sendRedirect(req.getContextPath() + "/home");
+            resp.sendRedirect(req.getContextPath() + "/view/home.jsp");
 
         } else {
 
             req.setAttribute("alert", "Sai username hoặc password");
 
-            req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+            req.getRequestDispatcher("/view/login.jsp").forward(req, resp);
         }
     }
 }

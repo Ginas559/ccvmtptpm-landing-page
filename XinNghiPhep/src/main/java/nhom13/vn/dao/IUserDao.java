@@ -10,4 +10,8 @@ public interface IUserDao {
     boolean checkExistUsername(String username);
 
     boolean checkExistEmail(String email);
+    
+    User findByEmail(String email);
+    
+    void update(User user);
 }

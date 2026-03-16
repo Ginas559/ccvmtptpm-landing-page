@@ -1,28 +1,34 @@
-<!-- src/main/webapp/views/login.jsp -->
-<%@ page contentType="text/html;charset=UTF-8" %>
+<!-- src/main/webapp/view/login.jsp -->
+<%@ page contentType="text/html;charset=UTF-8"%>
 
 <html>
 <head>
-    <title>Login</title>
+<title>Login</title>
 </head>
 
 <body>
 
-<h2>Login</h2>
+	<h2>Login</h2>
 
-<form action="${pageContext.request.contextPath}/login" method="post">
+	<form action="${pageContext.request.contextPath}/login" method="post">
 
-    Username:
-    <input type="text" name="username"/><br/>
+		Username: <input type="text" name="username" /><br /> Password: <input
+			type="password" name="password" /><br /> <input type="submit"
+			value="Login" />
 
-    Password:
-    <input type="password" name="password"/><br/>
+	</form>
 
-    <input type="submit" value="Login"/>
+	<p style="color: red">${alert}</p>
 
-</form>
+	<br>
 
-<p style="color:red">${alert}</p>
+	<a href="${pageContext.request.contextPath}/view/forgotpassword.jsp">
+		Forgot Password </a>
+
+	<br>
+
+	<a href="${pageContext.request.contextPath}/view/signup.jsp"> Sign
+		Up </a>
 
 </body>
 </html>
