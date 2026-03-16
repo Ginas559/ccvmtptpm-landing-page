@@ -5,5 +5,6 @@ import nhom13.vn.entity.User;
 public interface IUserService {
 
     User login(String username, String password);
-
+    
+    int register(String username, String password, String email);
 }

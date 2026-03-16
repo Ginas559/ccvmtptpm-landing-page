@@ -15,4 +15,26 @@ public class UserServiceImpl implements IUserService {
         return userDao.findByUsernameAndPassword(username, password);
 
     }
+    
+    @Override
+    public int register(String username, String password, String email) {
+
+        if (userDao.checkExistUsername(username)) {
+            return 1;
+        }
+
+        if (userDao.checkExistEmail(email)) {
+            return 2;
+        }
+
+        User user = new User();
+
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setEmail(email);
+
+        userDao.insert(user);
+
+        return 0;
+    }
 }
