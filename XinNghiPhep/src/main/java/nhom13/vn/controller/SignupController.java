@@ -18,7 +18,7 @@ public class SignupController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        req.getRequestDispatcher("/view/signup.jsp").forward(req, resp);
+        req.getRequestDispatcher("/view/auth/signup.jsp").forward(req, resp);
 
     }
 
@@ -30,7 +30,22 @@ public class SignupController extends HttpServlet {
         String email = req.getParameter("email");
         String password = req.getParameter("password");
 
-        int result = userService.register(username, password, email);
+        String role = req.getParameter("role");
+        String secretCode = req.getParameter("secretCode");
+
+        // kiểm tra secret code
+        if ("MANAGER".equals(role) || "SUPER_ADMIN".equals(role)) {
+
+            if (secretCode == null || !secretCode.equals("1d3t")) {
+
+                req.setAttribute("errorMsg", "Mã bí mật không đúng");
+                req.getRequestDispatcher("/view/auth/signup.jsp").forward(req, resp);
+                return;
+
+            }
+        }
+
+        int result = userService.register(username, password, email, role);
 
         if (result == 0) {
 
@@ -39,8 +54,7 @@ public class SignupController extends HttpServlet {
         } else {
 
             req.setAttribute("errorMsg", "Username hoặc Email đã tồn tại");
-
-            req.getRequestDispatcher("/view/signup.jsp").forward(req, resp);
+            req.getRequestDispatcher("/view/auth/signup.jsp").forward(req, resp);
 
         }
     }

@@ -7,6 +7,8 @@ import nhom13.vn.config.JPAConfig;
 import nhom13.vn.dao.IUserDao;
 import nhom13.vn.entity.User;
 
+import java.util.List;
+
 
 public class UserDaoImpl implements IUserDao {
 
@@ -149,6 +151,43 @@ public class UserDaoImpl implements IUserDao {
 
             em.close();
 
+        }
+    }
+
+    @Override
+    public User findById(int id) {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            return em.find(User.class, id);
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public List<User> findByRole(String role) {
+        System.out.println("findByRole duoc goi");
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            String jpql = "SELECT u FROM User u WHERE u.role = :role";
+            return em.createQuery(jpql, User.class)
+                    .setParameter("role", role)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public List<User> findByRoles(List<String> roles) {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            String jpql = "SELECT u FROM User u WHERE u.role IN :roles";
+            return em.createQuery(jpql, User.class)
+                    .setParameter("roles", roles)
+                    .getResultList();
+        } finally {
+            em.close();
         }
     }
 }
