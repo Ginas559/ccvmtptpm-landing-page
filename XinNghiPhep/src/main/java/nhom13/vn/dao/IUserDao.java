@@ -2,6 +2,8 @@ package nhom13.vn.dao;
 
 import nhom13.vn.entity.User;
 
+import java.util.List;
+
 public interface IUserDao {
     User findByUsernameAndPassword(String username, String password);
     
@@ -14,4 +16,9 @@ public interface IUserDao {
     User findByEmail(String email);
     
     void update(User user);
+
+    User findById(int id);
+
+    List<User> findByRole(String role);
+    List<User> findByRoles(List<String> roles);
 }

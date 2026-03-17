@@ -1,4 +1,4 @@
-<!-- src/main/webapp/view/login.jsp -->
+<!-- src/main/webapp/view/auth/login.jsp -->
 <%@ page contentType="text/html;charset=UTF-8"%>
 
 <html>
@@ -22,12 +22,12 @@
 
 	<br>
 
-	<a href="${pageContext.request.contextPath}/view/forgotpassword.jsp">
+	<a href="${pageContext.request.contextPath}/view/auth/forgotpassword.jsp">
 		Forgot Password </a>
 
 	<br>
 
-	<a href="${pageContext.request.contextPath}/view/signup.jsp"> Sign
+	<a href="${pageContext.request.contextPath}/view/auth/signup.jsp"> Sign
 		Up </a>
 
 </body>
