@@ -10,30 +10,36 @@
 <body>
 	<h2>Manager Dashboard</h2>
 
-	<hr>
-        <li><a href="${pageContext.request.contextPath}/my-profile">
-                My Profile </a></li>
-	</hr>
+    <ul>
+        <li>
+            <a href="${pageContext.request.contextPath}/my-profile">
+                My Profile
+            </a>
+        </li>
 
-
-	<hr>
-    	<li>
+        <li>
             <a href="${pageContext.request.contextPath}/manager/zemployeez">
                 View Employees
             </a>
         </li>
-    </hr>
 
+        <li>
+            <a href="${pageContext.request.contextPath}/manager/requests">
+                Check Leave Requests
+            </a>
+        </li>
 
-	<ul>
-		<li><a href="${pageContext.request.contextPath}/manager/requests">
-				Check Leave Requests </a></li>
+        <li>
+            <a href="${pageContext.request.contextPath}/manager/approve">
+                Approval Leave
+            </a>
+        </li>
 
-		<li><a href="${pageContext.request.contextPath}/manager/approve">
-				Approval Leave </a></li>
-
-		<li><a href="${pageContext.request.contextPath}/manager/reports">
-				Create Leave Reports </a></li>
-	</ul>
+        <li>
+            <a href="${pageContext.request.contextPath}/manager/reports">
+                Create Leave Reports
+            </a>
+        </li>
+    </ul>
 </body>
 </html>

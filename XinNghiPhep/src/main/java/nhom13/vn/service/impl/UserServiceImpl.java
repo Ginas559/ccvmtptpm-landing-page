@@ -17,7 +17,7 @@ public class UserServiceImpl implements IUserService {
         return userDao.findByUsernameAndPassword(username, password);
 
     }
-    
+
     @Override
     public int register(String username, String password, String email, String role) {
 
@@ -40,7 +40,7 @@ public class UserServiceImpl implements IUserService {
 
         return 0;
     }
-    
+
     @Override
     public User findByEmail(String email) {
 
@@ -68,5 +68,19 @@ public class UserServiceImpl implements IUserService {
     @Override
     public List<User> findByRoles(List<String> roles) {
         return userDao.findByRoles(roles);
+    }
+
+    @Override
+    public void insert(User user) {
+
+        if (userDao.checkExistUsername(user.getUsername())) {
+            throw new RuntimeException("Username already exists");
+        }
+
+        if (userDao.checkExistEmail(user.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        userDao.insert(user);
     }
 }

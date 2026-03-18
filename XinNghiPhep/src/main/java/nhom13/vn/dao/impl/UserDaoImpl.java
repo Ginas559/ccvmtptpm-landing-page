@@ -20,7 +20,7 @@ public class UserDaoImpl implements IUserDao {
 
         try {
 
-            String jpql = "SELECT u FROM User u WHERE u.username = :username AND u.password = :password";
+            String jpql = "SELECT u FROM User u WHERE u.username = :username AND u.password = :password AND u.status = 1";
 
             TypedQuery<User> query = em.createQuery(jpql, User.class);
 
@@ -166,10 +166,9 @@ public class UserDaoImpl implements IUserDao {
 
     @Override
     public List<User> findByRole(String role) {
-        System.out.println("findByRole duoc goi");
         EntityManager em = JPAConfig.getEntityManager();
         try {
-            String jpql = "SELECT u FROM User u WHERE u.role = :role";
+            String jpql = "SELECT u FROM User u WHERE u.role = :role AND u.status = 1";
             return em.createQuery(jpql, User.class)
                     .setParameter("role", role)
                     .getResultList();
@@ -182,7 +181,7 @@ public class UserDaoImpl implements IUserDao {
     public List<User> findByRoles(List<String> roles) {
         EntityManager em = JPAConfig.getEntityManager();
         try {
-            String jpql = "SELECT u FROM User u WHERE u.role IN :roles";
+            String jpql = "SELECT u FROM User u WHERE u.role IN :roles AND u.status = 1";
             return em.createQuery(jpql, User.class)
                     .setParameter("roles", roles)
                     .getResultList();
