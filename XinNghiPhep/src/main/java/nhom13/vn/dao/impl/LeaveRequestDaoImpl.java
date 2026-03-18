@@ -11,6 +11,11 @@ import nhom13.vn.entity.LeaveRequest;
 
 public class LeaveRequestDaoImpl implements ILeaveRequestDao {
 
+    private static LeaveRequestDaoImpl instance;
+
+    private LeaveRequestDaoImpl() {
+    }
+
     @Override
     public void insert(LeaveRequest lr) {
 
@@ -50,5 +55,37 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
         } finally {
             em.close();
         }
+    }
+    @Override
+    public List<LeaveRequest> findAll() {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            return em.createQuery(
+                "SELECT lr FROM LeaveRequest lr ORDER BY lr.startDate DESC",
+                LeaveRequest.class
+            ).getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public List<LeaveRequest> findAllEmployees() {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            return em.createQuery(
+                "SELECT lr FROM LeaveRequest lr WHERE lr.user.role = 'EMPLOYEE' ORDER BY lr.startDate DESC",
+                LeaveRequest.class
+            ).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+    public static LeaveRequestDaoImpl getInstance() {
+        if (instance == null) {
+            instance = new LeaveRequestDaoImpl();
+        }
+        return instance;
     }
 }

@@ -6,5 +6,10 @@ import nhom13.vn.entity.LeaveRequest;
 
 public interface ILeaveRequestDao {
     void insert(LeaveRequest lr);
+    	
     List<LeaveRequest> findByUser(int userId);
+    
+    List<LeaveRequest> findAll(); // 🔥 admin
+
+    List<LeaveRequest> findAllEmployees(); // 🔥 manager
 }
