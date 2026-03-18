@@ -10,15 +10,22 @@
 <body>
 	<h2>Manager Dashboard</h2>
 
-	<ul>
-		<li><a href="${pageContext.request.contextPath}/my-profile">
-				My Profile </a></li>
+	<hr>
+        <li><a href="${pageContext.request.contextPath}/my-profile">
+                My Profile </a></li>
+	</hr>
 
-		<li><a
-			href="${pageContext.request.contextPath}/manager/zemployeez">
-				View Employees </a></li>
-		<li><a href="${pageContext.request.contextPath}/leave/create">
-				Request Leave </a></li>
+
+	<hr>
+    	<li>
+            <a href="${pageContext.request.contextPath}/manager/zemployeez">
+                View Employees
+            </a>
+        </li>
+    </hr>
+
+
+	<ul>
 		<li><a href="${pageContext.request.contextPath}/manager/requests">
 				Check Leave Requests </a></li>
 
@@ -28,9 +35,5 @@
 		<li><a href="${pageContext.request.contextPath}/manager/reports">
 				Create Leave Reports </a></li>
 	</ul>
-	<c:if test="${message != null}">
-		<p style="color: green">${message}</p>
-		<c:remove var="message" scope="session" />
-	</c:if>
 </body>
 </html>

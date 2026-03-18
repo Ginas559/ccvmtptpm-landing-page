@@ -16,7 +16,7 @@
 	</hr>
 
 	<ul>
-		<li><a href="${pageContext.request.contextPath}/leave/create">
+		<li><a href="${pageContext.request.contextPath}/employee/request">
 				Request Leave </a></li>
 
 		<li><a href="${pageContext.request.contextPath}/employee/status">
@@ -25,9 +25,5 @@
 		<li><a href="${pageContext.request.contextPath}/employee/balance">
 				Check Leave Balance </a></li>
 	</ul>
-	<c:if test="${message != null}">
-		<p style="color: green">${message}</p>
-		<c:remove var="message" scope="session" />
-	</c:if>
 </body>
 </html>
