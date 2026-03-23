@@ -10,6 +10,12 @@
 </head>
 <body>
 	<h2>${empty pageTitle ? 'Leave Requests List' : pageTitle}</h2>
+	<c:if test="${param.msg == 'approved'}">
+		<p style="color: green;">Leave request approved successfully.</p>
+	</c:if>
+	<c:if test="${param.msg == 'notfound'}">
+		<p style="color: red;">Unable to approve: request not found or already processed.</p>
+	</c:if>
 	<p>
 		<a href="${pageContext.request.contextPath}/leave/list">All</a> |
 		<a href="${pageContext.request.contextPath}/leave/pending">Pending</a>
@@ -36,6 +42,13 @@
 				<td>${lr.status}</td>
 				<td>
 					<a href="${pageContext.request.contextPath}/leave/detail?id=${lr.id}">View</a>
+					<c:if test="${(sessionScope.account.role == 'MANAGER' || sessionScope.account.role == 'SUPER_ADMIN') && lr.status == 'PENDING'}">
+						|
+						<form action="${pageContext.request.contextPath}/leave/approve" method="post" style="display:inline;">
+							<input type="hidden" name="id" value="${lr.id}" />
+							<button type="submit">Approve</button>
+						</form>
+					</c:if>
 				</td>
 			</tr>
 		</c:forEach>

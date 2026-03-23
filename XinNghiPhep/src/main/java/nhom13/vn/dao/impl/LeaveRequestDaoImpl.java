@@ -168,6 +168,54 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
         }
     }
 
+    @Override
+    public boolean approvePendingForManager(int leaveId) {
+        EntityManager em = JPAConfig.getEntityManager();
+        EntityTransaction trans = em.getTransaction();
+        try {
+            trans.begin();
+            int updated = em.createQuery(
+                    "UPDATE LeaveRequest lr SET lr.status = 'APPROVED' "
+                            + "WHERE lr.id = :id AND lr.status = 'PENDING' AND lr.user.role = 'EMPLOYEE'"
+            )
+            .setParameter("id", leaveId)
+            .executeUpdate();
+            trans.commit();
+            return updated > 0;
+        } catch (Exception e) {
+            if (trans.isActive()) {
+                trans.rollback();
+            }
+            return false;
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public boolean approvePendingForAdmin(int leaveId) {
+        EntityManager em = JPAConfig.getEntityManager();
+        EntityTransaction trans = em.getTransaction();
+        try {
+            trans.begin();
+            int updated = em.createQuery(
+                    "UPDATE LeaveRequest lr SET lr.status = 'APPROVED' "
+                            + "WHERE lr.id = :id AND lr.status = 'PENDING'"
+            )
+            .setParameter("id", leaveId)
+            .executeUpdate();
+            trans.commit();
+            return updated > 0;
+        } catch (Exception e) {
+            if (trans.isActive()) {
+                trans.rollback();
+            }
+            return false;
+        } finally {
+            em.close();
+        }
+    }
+
     public static LeaveRequestDaoImpl getInstance() {
         if (instance == null) {
             instance = new LeaveRequestDaoImpl();
