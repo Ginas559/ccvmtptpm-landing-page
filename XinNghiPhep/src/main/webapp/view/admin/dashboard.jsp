@@ -16,12 +16,9 @@
 	</hr>
 
 	<hr>
-        <li>
-            <a href="${pageContext.request.contextPath}/admin/users">
-                Manage Users
-            </a>
-        </li>
-    </hr>
+	<li><a href="${pageContext.request.contextPath}/admin/users">
+			Manage Users </a></li>
+	</hr>
 
 	<ul>
 		<li><a href="${pageContext.request.contextPath}/admin/users">Manage
@@ -35,6 +32,8 @@
 		<li><a
 			href="${pageContext.request.contextPath}/admin/notifications">Manage
 				Notifications</a></li>
+		<li><a href="${pageContext.request.contextPath}/leave/list">
+				View Leave Requests </a></li>
 	</ul>
 </body>
 </html>

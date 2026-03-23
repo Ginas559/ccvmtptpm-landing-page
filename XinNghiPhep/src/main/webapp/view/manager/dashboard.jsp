@@ -27,6 +27,8 @@
 
 		<li><a href="${pageContext.request.contextPath}/manager/reports">
 				Create Leave Reports </a></li>
+		<li><a href="${pageContext.request.contextPath}/leave/list">
+				View Leave Requests </a></li>
 	</ul>
 	<c:if test="${message != null}">
 		<p style="color: green">${message}</p>
