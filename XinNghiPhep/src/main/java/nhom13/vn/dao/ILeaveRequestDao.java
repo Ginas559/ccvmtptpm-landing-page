@@ -24,4 +24,8 @@ public interface ILeaveRequestDao {
     LeaveRequest findByIdForManager(int leaveId);
 
     List<LeaveRequest> findPendingEmployees();
+
+    boolean approvePendingForManager(int leaveId);
+
+    boolean approvePendingForAdmin(int leaveId);
 }

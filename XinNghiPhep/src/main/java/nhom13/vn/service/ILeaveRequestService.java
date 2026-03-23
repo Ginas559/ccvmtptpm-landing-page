@@ -21,4 +21,6 @@ public interface ILeaveRequestService {
     List<LeaveRequest> getPendingEmployees();
 
     LeaveRequest getDetailForViewer(int leaveId, User viewer);
+
+    boolean approveForViewer(int leaveId, User viewer);
 }
