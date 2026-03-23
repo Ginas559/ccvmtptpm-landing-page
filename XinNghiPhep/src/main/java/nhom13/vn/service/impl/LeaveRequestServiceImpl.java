@@ -4,6 +4,7 @@ import nhom13.vn.dao.impl.LeaveRequestDaoImpl;
 import nhom13.vn.service.ILeaveRequestService;
 import nhom13.vn.dao.ILeaveRequestDao;
 import nhom13.vn.entity.LeaveRequest;
+import nhom13.vn.entity.User;
 //Singleton
 public class LeaveRequestServiceImpl implements ILeaveRequestService {
 
@@ -54,5 +55,28 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     @Override
     public List<LeaveRequest> getPendingEmployees() {
         return dao.findPendingEmployees();
+    }
+
+    @Override
+    public LeaveRequest getDetailForViewer(int leaveId, User viewer) {
+        if (viewer == null) {
+            return null;
+        }
+
+        String role = viewer.getRole();
+
+        if ("EMPLOYEE".equals(role)) {
+            return dao.findByIdForUser(leaveId, viewer.getId());
+        }
+
+        if ("MANAGER".equals(role)) {
+            return dao.findByIdForManager(leaveId);
+        }
+
+        if ("SUPER_ADMIN".equals(role)) {
+            return dao.findById(leaveId);
+        }
+
+        return null;
     }
 }

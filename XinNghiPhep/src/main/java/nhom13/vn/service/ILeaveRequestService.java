@@ -3,6 +3,7 @@ package nhom13.vn.service;
 import java.util.List;
 
 import nhom13.vn.entity.LeaveRequest;
+import nhom13.vn.entity.User;
 
 public interface ILeaveRequestService {
     void create(LeaveRequest lr);
@@ -18,4 +19,6 @@ public interface ILeaveRequestService {
     List<LeaveRequest> getAllEmployees();
 
     List<LeaveRequest> getPendingEmployees();
+
+    LeaveRequest getDetailForViewer(int leaveId, User viewer);
 }

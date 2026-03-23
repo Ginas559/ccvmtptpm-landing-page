@@ -4,6 +4,7 @@ import java.util.List;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import nhom13.vn.config.JPAConfig;
 import nhom13.vn.dao.ILeaveRequestDao;
@@ -58,6 +59,24 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     }
 
     @Override
+    public LeaveRequest findByIdForUser(int leaveId, int userId) {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT lr FROM LeaveRequest lr WHERE lr.id = :id AND lr.user.id = :uid",
+                    LeaveRequest.class
+            )
+            .setParameter("id", leaveId)
+            .setParameter("uid", userId)
+            .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public List<LeaveRequest> findPendingByUser(int userId) {
         EntityManager em = JPAConfig.getEntityManager();
         try {
@@ -84,6 +103,16 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     }
 
     @Override
+    public LeaveRequest findById(int leaveId) {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            return em.find(LeaveRequest.class, leaveId);
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public List<LeaveRequest> findPendingAll() {
         EntityManager em = JPAConfig.getEntityManager();
         try {
@@ -104,6 +133,23 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
                 "SELECT lr FROM LeaveRequest lr WHERE lr.user.role = 'EMPLOYEE' ORDER BY lr.startDate DESC",
                 LeaveRequest.class
             ).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public LeaveRequest findByIdForManager(int leaveId) {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT lr FROM LeaveRequest lr WHERE lr.id = :id AND lr.user.role = 'EMPLOYEE'",
+                    LeaveRequest.class
+            )
+            .setParameter("id", leaveId)
+            .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         } finally {
             em.close();
         }

@@ -1,4 +1,4 @@
-<-- /view/leave/list.jsp -->
+<!-- /view/leave/list.jsp -->
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -23,6 +23,7 @@
 			<th>End</th>
 			<th>Reason</th>
 			<th>Status</th>
+			<th>Action</th>
 		</tr>
 
 		<c:forEach var="lr" items="${leaveList}">
@@ -33,6 +34,9 @@
 				<td>${lr.endDate}</td>
 				<td>${lr.reason}</td>
 				<td>${lr.status}</td>
+				<td>
+					<a href="${pageContext.request.contextPath}/leave/detail?id=${lr.id}">View</a>
+				</td>
 			</tr>
 		</c:forEach>
 	</table>
