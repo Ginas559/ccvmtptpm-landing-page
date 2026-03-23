@@ -79,4 +79,23 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
 
         return null;
     }
+
+    @Override
+    public boolean approveForViewer(int leaveId, User viewer) {
+        if (viewer == null || leaveId <= 0) {
+            return false;
+        }
+
+        String role = viewer.getRole();
+
+        if ("MANAGER".equals(role)) {
+            return dao.approvePendingForManager(leaveId);
+        }
+
+        if ("SUPER_ADMIN".equals(role)) {
+            return dao.approvePendingForAdmin(leaveId);
+        }
+
+        return false;
+    }
 }

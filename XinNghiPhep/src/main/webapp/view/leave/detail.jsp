@@ -42,6 +42,13 @@
 				<td>${leaveRequest.reason}</td>
 			</tr>
 		</table>
+
+		<c:if test="${(sessionScope.account.role == 'MANAGER' || sessionScope.account.role == 'SUPER_ADMIN') && leaveRequest.status == 'PENDING'}">
+			<form action="${pageContext.request.contextPath}/leave/approve" method="post" style="margin-top:10px;">
+				<input type="hidden" name="id" value="${leaveRequest.id}" />
+				<button type="submit">Approve</button>
+			</form>
+		</c:if>
 	</c:if>
 </body>
 </html>
