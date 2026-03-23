@@ -32,12 +32,27 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     }
 
     @Override
+    public List<LeaveRequest> getPendingByUser(int userId) {
+        return dao.findPendingByUser(userId);
+    }
+
+    @Override
     public List<LeaveRequest> getAll() {
         return dao.findAll();
     }
 
     @Override
+    public List<LeaveRequest> getPendingAll() {
+        return dao.findPendingAll();
+    }
+
+    @Override
     public List<LeaveRequest> getAllEmployees() {
         return dao.findAllEmployees();
+    }
+
+    @Override
+    public List<LeaveRequest> getPendingEmployees() {
+        return dao.findPendingEmployees();
     }
 }

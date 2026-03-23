@@ -9,7 +9,13 @@ public interface ILeaveRequestService {
 
     List<LeaveRequest> getByUser(int userId);
 
+    List<LeaveRequest> getPendingByUser(int userId);
+
     List<LeaveRequest> getAll();
 
+    List<LeaveRequest> getPendingAll();
+
     List<LeaveRequest> getAllEmployees();
+
+    List<LeaveRequest> getPendingEmployees();
 }

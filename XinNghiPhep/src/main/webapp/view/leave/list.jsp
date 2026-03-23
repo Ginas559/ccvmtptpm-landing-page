@@ -9,7 +9,11 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<h2>Leave Requests List</h2>
+	<h2>${empty pageTitle ? 'Leave Requests List' : pageTitle}</h2>
+	<p>
+		<a href="${pageContext.request.contextPath}/leave/list">All</a> |
+		<a href="${pageContext.request.contextPath}/leave/pending">Pending</a>
+	</p>
 
 	<table border="1">
 		<tr>

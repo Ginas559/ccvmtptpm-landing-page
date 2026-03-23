@@ -8,8 +8,14 @@ public interface ILeaveRequestDao {
     void insert(LeaveRequest lr);
     	
     List<LeaveRequest> findByUser(int userId);
+
+    List<LeaveRequest> findPendingByUser(int userId);
     
     List<LeaveRequest> findAll(); // 🔥 admin
 
+    List<LeaveRequest> findPendingAll();
+
     List<LeaveRequest> findAllEmployees(); // 🔥 manager
+
+    List<LeaveRequest> findPendingEmployees();
 }
