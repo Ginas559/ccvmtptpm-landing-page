@@ -56,6 +56,19 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
             em.close();
         }
     }
+
+    @Override
+    public List<LeaveRequest> findPendingByUser(int userId) {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT lr FROM LeaveRequest lr WHERE lr.user.id = :uid AND lr.status = 'PENDING' ORDER BY lr.startDate DESC",
+                    LeaveRequest.class
+            ).setParameter("uid", userId).getResultList();
+        } finally {
+            em.close();
+        }
+    }
     @Override
     public List<LeaveRequest> findAll() {
         EntityManager em = JPAConfig.getEntityManager();
@@ -65,6 +78,19 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
                 LeaveRequest.class
             ).getResultList();
 
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public List<LeaveRequest> findPendingAll() {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT lr FROM LeaveRequest lr WHERE lr.status = 'PENDING' ORDER BY lr.startDate DESC",
+                    LeaveRequest.class
+            ).getResultList();
         } finally {
             em.close();
         }
@@ -82,6 +108,20 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
             em.close();
         }
     }
+
+    @Override
+    public List<LeaveRequest> findPendingEmployees() {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT lr FROM LeaveRequest lr WHERE lr.user.role = 'EMPLOYEE' AND lr.status = 'PENDING' ORDER BY lr.startDate DESC",
+                    LeaveRequest.class
+            ).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public static LeaveRequestDaoImpl getInstance() {
         if (instance == null) {
             instance = new LeaveRequestDaoImpl();
