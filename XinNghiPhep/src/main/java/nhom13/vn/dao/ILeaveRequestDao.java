@@ -9,13 +9,19 @@ public interface ILeaveRequestDao {
     	
     List<LeaveRequest> findByUser(int userId);
 
+    LeaveRequest findByIdForUser(int leaveId, int userId);
+
     List<LeaveRequest> findPendingByUser(int userId);
     
     List<LeaveRequest> findAll(); // 🔥 admin
 
+    LeaveRequest findById(int leaveId);
+
     List<LeaveRequest> findPendingAll();
 
     List<LeaveRequest> findAllEmployees(); // 🔥 manager
+
+    LeaveRequest findByIdForManager(int leaveId);
 
     List<LeaveRequest> findPendingEmployees();
 }
