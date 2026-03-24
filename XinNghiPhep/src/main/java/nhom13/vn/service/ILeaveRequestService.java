@@ -20,11 +20,17 @@ public interface ILeaveRequestService {
 
     List<LeaveRequest> getPendingEmployees();
 
+    List<LeaveRequest> getByUserWithReview(int userId, String status);
+
     List<LeaveRequest> getAllForViewer(User viewer, String status);
 
     LeaveRequest getDetailForViewer(int leaveId, User viewer);
 
     boolean approveForViewer(int leaveId, User viewer);
 
+    boolean approveForViewer(int leaveId, User viewer, String note);
+
     boolean rejectForViewer(int leaveId, User viewer);
+
+    boolean rejectForViewer(int leaveId, User viewer, String note);
 }

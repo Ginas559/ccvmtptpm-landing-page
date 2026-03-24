@@ -3,6 +3,8 @@ package nhom13.vn.dao.impl;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.EntityManager;
@@ -12,8 +14,10 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import nhom13.vn.config.JPAConfig;
 import nhom13.vn.dao.ILeaveRequestDao;
+import nhom13.vn.entity.LeaveApproval;
 import nhom13.vn.entity.LeaveBalance;
 import nhom13.vn.entity.LeaveRequest;
+import nhom13.vn.entity.User;
 
 public class LeaveRequestDaoImpl implements ILeaveRequestDao {
 
@@ -75,6 +79,41 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     }
 
     @Override
+    public List<LeaveRequest> findByUserAndStatusWithReview(int userId, String status) {
+        EntityManager em = JPAConfig.getEntityManager();
+
+        try {
+            String jpql = "SELECT lr, la.note FROM LeaveRequest lr "
+                    + "LEFT JOIN LeaveApproval la ON la.leaveRequest.id = lr.id "
+                    + "WHERE lr.user.id = :uid";
+            if (status != null && !status.isBlank()) {
+                jpql += " AND lr.status = :status";
+            }
+            jpql += " ORDER BY lr.startDate DESC";
+
+            TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
+            query.setParameter("uid", userId);
+            if (status != null && !status.isBlank()) {
+                query.setParameter("status", status);
+            }
+
+            List<Object[]> rows = query.getResultList();
+            List<LeaveRequest> result = new ArrayList<>(rows.size());
+
+            for (Object[] row : rows) {
+                LeaveRequest leaveRequest = (LeaveRequest) row[0];
+                String reviewerComment = (String) row[1];
+                leaveRequest.setReviewerComment(reviewerComment);
+                result.add(leaveRequest);
+            }
+
+            return result;
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public LeaveRequest findByIdForUser(int leaveId, int userId) {
         EntityManager em = JPAConfig.getEntityManager();
         try {
@@ -105,18 +144,19 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     public List<LeaveRequest> findAllByStatus(String status) {
         EntityManager em = JPAConfig.getEntityManager();
         try {
-            String jpql = "SELECT lr FROM LeaveRequest lr";
+            String jpql = "SELECT lr, la.note FROM LeaveRequest lr "
+                    + "LEFT JOIN LeaveApproval la ON la.leaveRequest.id = lr.id";
             if (status != null && !status.isBlank()) {
                 jpql += " WHERE lr.status = :status";
             }
             jpql += " ORDER BY lr.startDate DESC";
 
-            TypedQuery<LeaveRequest> query = em.createQuery(jpql, LeaveRequest.class);
+            TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
             if (status != null && !status.isBlank()) {
                 query.setParameter("status", status);
             }
 
-            return query.getResultList();
+            return mapLeaveRequestsWithReviewComment(query.getResultList());
 
         } finally {
             em.close();
@@ -147,18 +187,20 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     public List<LeaveRequest> findAllEmployeesByStatus(String status) {
         EntityManager em = JPAConfig.getEntityManager();
         try {
-            String jpql = "SELECT lr FROM LeaveRequest lr WHERE lr.user.role = 'EMPLOYEE'";
+            String jpql = "SELECT lr, la.note FROM LeaveRequest lr "
+                    + "LEFT JOIN LeaveApproval la ON la.leaveRequest.id = lr.id "
+                    + "WHERE lr.user.role = 'EMPLOYEE'";
             if (status != null && !status.isBlank()) {
                 jpql += " AND lr.status = :status";
             }
             jpql += " ORDER BY lr.startDate DESC";
 
-            TypedQuery<LeaveRequest> query = em.createQuery(jpql, LeaveRequest.class);
+            TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
             if (status != null && !status.isBlank()) {
                 query.setParameter("status", status);
             }
 
-            return query.getResultList();
+            return mapLeaveRequestsWithReviewComment(query.getResultList());
         } finally {
             em.close();
         }
@@ -188,25 +230,45 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
 
     @Override
     public boolean approvePendingForManager(int leaveId) {
-        return approveAndConsumeDays(leaveId, true);
+        return approvePendingForManager(leaveId, null, null);
+    }
+
+    @Override
+    public boolean approvePendingForManager(int leaveId, User reviewer, String note) {
+        return approveAndConsumeDays(leaveId, true, reviewer, note);
     }
 
     @Override
     public boolean approvePendingForAdmin(int leaveId) {
-        return approveAndConsumeDays(leaveId, false);
+        return approvePendingForAdmin(leaveId, null, null);
+    }
+
+    @Override
+    public boolean approvePendingForAdmin(int leaveId, User reviewer, String note) {
+        return approveAndConsumeDays(leaveId, false, reviewer, note);
     }
 
     @Override
     public boolean rejectPendingForManager(int leaveId) {
-        return rejectPending(leaveId, true);
+        return rejectPendingForManager(leaveId, null, null);
+    }
+
+    @Override
+    public boolean rejectPendingForManager(int leaveId, User reviewer, String note) {
+        return rejectPending(leaveId, true, reviewer, note);
     }
 
     @Override
     public boolean rejectPendingForAdmin(int leaveId) {
-        return rejectPending(leaveId, false);
+        return rejectPendingForAdmin(leaveId, null, null);
     }
 
-    private boolean approveAndConsumeDays(int leaveId, boolean managerScopeOnlyEmployee) {
+    @Override
+    public boolean rejectPendingForAdmin(int leaveId, User reviewer, String note) {
+        return rejectPending(leaveId, false, reviewer, note);
+    }
+
+    private boolean approveAndConsumeDays(int leaveId, boolean managerScopeOnlyEmployee, User reviewer, String note) {
         EntityManager em = JPAConfig.getEntityManager();
         EntityTransaction trans = em.getTransaction();
 
@@ -261,6 +323,7 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
             }
 
             leaveRequest.setStatus("APPROVED");
+            upsertApproval(em, leaveRequest, reviewer, "APPROVED", note);
             leaveBalance.setUsedDays(leaveBalance.getUsedDays() + requestedDays);
             leaveBalance.setRemainingDays(leaveBalance.getRemainingDays() - requestedDays);
 
@@ -276,7 +339,7 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
         }
     }
 
-    private boolean rejectPending(int leaveId, boolean managerScopeOnlyEmployee) {
+    private boolean rejectPending(int leaveId, boolean managerScopeOnlyEmployee, User reviewer, String note) {
         EntityManager em = JPAConfig.getEntityManager();
         EntityTransaction trans = em.getTransaction();
 
@@ -300,6 +363,7 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
             }
 
             leaveRequest.setStatus("REJECTED");
+            upsertApproval(em, leaveRequest, reviewer, "REJECTED", note);
 
             trans.commit();
             return true;
@@ -311,6 +375,53 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
         } finally {
             em.close();
         }
+    }
+
+    private void upsertApproval(EntityManager em, LeaveRequest leaveRequest, User reviewer, String decision, String note) {
+        LeaveApproval approval;
+        try {
+            approval = em.createQuery(
+                            "SELECT la FROM LeaveApproval la WHERE la.leaveRequest.id = :leaveId",
+                            LeaveApproval.class
+                    )
+                    .setParameter("leaveId", leaveRequest.getId())
+                    .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            approval = new LeaveApproval();
+            approval.setLeaveRequest(leaveRequest);
+        }
+
+        if (reviewer != null && reviewer.getId() > 0) {
+            approval.setManager(em.getReference(User.class, reviewer.getId()));
+        }
+        approval.setDecision(decision);
+        approval.setApprovalTime(new Date());
+        approval.setNote(normalizeNote(note));
+
+        if (approval.getId() == 0) {
+            em.persist(approval);
+        }
+    }
+
+    private String normalizeNote(String note) {
+        if (note == null) {
+            return null;
+        }
+
+        String trimmed = note.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private List<LeaveRequest> mapLeaveRequestsWithReviewComment(List<Object[]> rows) {
+        List<LeaveRequest> result = new ArrayList<>(rows.size());
+        for (Object[] row : rows) {
+            LeaveRequest leaveRequest = (LeaveRequest) row[0];
+            String reviewerComment = (String) row[1];
+            leaveRequest.setReviewerComment(reviewerComment);
+            result.add(leaveRequest);
+        }
+        return result;
     }
 
     private int calculateRequestedDays(LeaveRequest leaveRequest) {
