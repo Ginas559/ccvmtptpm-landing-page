@@ -58,6 +58,30 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     }
 
     @Override
+    public List<LeaveRequest> getAllForViewer(User viewer, String status) {
+        if (viewer == null) {
+            return List.of();
+        }
+
+        String normalizedStatus = normalizeStatus(status);
+        String role = viewer.getRole();
+
+        if ("EMPLOYEE".equals(role)) {
+            return dao.findByUserAndStatus(viewer.getId(), normalizedStatus);
+        }
+
+        if ("MANAGER".equals(role)) {
+            return dao.findAllEmployeesByStatus(normalizedStatus);
+        }
+
+        if ("SUPER_ADMIN".equals(role)) {
+            return dao.findAllByStatus(normalizedStatus);
+        }
+
+        return List.of();
+    }
+
+    @Override
     public LeaveRequest getDetailForViewer(int leaveId, User viewer) {
         if (viewer == null) {
             return null;
@@ -97,5 +121,43 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean rejectForViewer(int leaveId, User viewer) {
+        if (viewer == null || leaveId <= 0) {
+            return false;
+        }
+
+        String role = viewer.getRole();
+
+        if ("MANAGER".equals(role)) {
+            return dao.rejectPendingForManager(leaveId);
+        }
+
+        if ("SUPER_ADMIN".equals(role)) {
+            return dao.rejectPendingForAdmin(leaveId);
+        }
+
+        return false;
+    }
+
+    private String normalizeStatus(String status) {
+        if (status == null) {
+            return null;
+        }
+
+        String normalized = status.trim().toUpperCase();
+        if (normalized.isEmpty() || "ALL".equals(normalized)) {
+            return null;
+        }
+
+        if (!"PENDING".equals(normalized)
+                && !"APPROVED".equals(normalized)
+                && !"REJECTED".equals(normalized)) {
+            return null;
+        }
+
+        return normalized;
     }
 }

@@ -1,5 +1,7 @@
 package nhom13.vn.dao.impl;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
@@ -28,6 +30,10 @@ public class LeaveBalanceDaoImpl implements ILeaveBalanceDao {
 		EntityManager em = JPAConfig.getEntityManager();
 		EntityTransaction trans = em.getTransaction();
 		try {
+			if (leaveBalance.getLastResetYear() <= 0) {
+				leaveBalance.setLastResetYear(LocalDate.now().getYear());
+			}
+
 			trans.begin();
 			em.persist(leaveBalance);
 			trans.commit();
