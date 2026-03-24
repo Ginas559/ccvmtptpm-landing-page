@@ -1,6 +1,7 @@
 <-- view/mânger/dashboard.jsp -->
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -29,6 +30,8 @@
 				Create Leave Reports </a></li>
 		<li><a href="${pageContext.request.contextPath}/leave/list">
 				View Leave Requests </a></li>
+		<li><a href="${pageContext.request.contextPath}/manager/balance">
+				View Leave Balance </a></li>
 	</ul>
 	<c:if test="${message != null}">
 		<p style="color: green">${message}</p>

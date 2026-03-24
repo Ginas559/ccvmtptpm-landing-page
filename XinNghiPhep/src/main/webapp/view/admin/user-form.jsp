@@ -45,6 +45,10 @@
     </select>
     <br/><br/>
 
+    Remaining Leave Days:
+    <input type="number" name="remainingDays" min="0" value="${user == null ? 12 : leaveRemainingDays}" />
+    <br/><br/>
+
     <button type="submit">Save</button>
 </form>
 

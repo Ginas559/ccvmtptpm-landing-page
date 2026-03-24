@@ -7,10 +7,13 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Create Leave Request</title>
 </head>
 <body>
 	<h2>Create Leave Request</h2>
+	<c:if test="${not empty leaveBalance}">
+		<p>Remaining leave days: <strong>${leaveBalance.remainingDays}</strong> / ${leaveBalance.totalDays}</p>
+	</c:if>
 
 	<c:if test="${alert != null}">
 		<p style="color: red">${alert}</p>
