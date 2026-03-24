@@ -1,7 +1,6 @@
 package nhom13.vn.entity;
 
 import java.io.Serializable;
-import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,13 +10,62 @@ public class LeaveBalance implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "userId")
+    @OneToOne
+    @JoinColumn(name = "userId", unique = true)
     private User user;
 
     private int totalDays;
     private int usedDays;
     private int remainingDays;
 
-    // Constructors, Getters, Setters
+    @Column(nullable = false)
+    private int lastResetYear;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public int getTotalDays() {
+        return totalDays;
+    }
+
+    public void setTotalDays(int totalDays) {
+        this.totalDays = totalDays;
+    }
+
+    public int getUsedDays() {
+        return usedDays;
+    }
+
+    public void setUsedDays(int usedDays) {
+        this.usedDays = usedDays;
+    }
+
+    public int getRemainingDays() {
+        return remainingDays;
+    }
+
+    public void setRemainingDays(int remainingDays) {
+        this.remainingDays = remainingDays;
+    }
+
+    public int getLastResetYear() {
+        return lastResetYear;
+    }
+
+    public void setLastResetYear(int lastResetYear) {
+        this.lastResetYear = lastResetYear;
+    }
 }

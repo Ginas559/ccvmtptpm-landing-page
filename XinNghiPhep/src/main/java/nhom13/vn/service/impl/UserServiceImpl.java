@@ -4,12 +4,14 @@ import nhom13.vn.dao.IUserDao;
 import nhom13.vn.dao.impl.UserDaoImpl;
 import nhom13.vn.service.IUserService;
 import nhom13.vn.entity.User;
+import nhom13.vn.service.ILeaveBalanceService;
 
 import java.util.List;
 
 public class UserServiceImpl implements IUserService {
 
     IUserDao userDao = new UserDaoImpl();
+    ILeaveBalanceService leaveBalanceService = LeaveBalanceServiceImpl.getInstance();
 
     @Override
     public User login(String username, String password) {
@@ -37,6 +39,7 @@ public class UserServiceImpl implements IUserService {
         user.setStatus(1);
 
         userDao.insert(user);
+        leaveBalanceService.ensureDefaultForUser(user);
 
         return 0;
     }
@@ -82,5 +85,6 @@ public class UserServiceImpl implements IUserService {
         }
 
         userDao.insert(user);
+        leaveBalanceService.ensureDefaultForUser(user);
     }
 }

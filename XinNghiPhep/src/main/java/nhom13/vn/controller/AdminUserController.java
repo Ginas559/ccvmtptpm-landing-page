@@ -8,9 +8,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import nhom13.vn.entity.LeaveBalance;
 import nhom13.vn.entity.User;
+import nhom13.vn.service.ILeaveBalanceService;
 import nhom13.vn.service.IUserService;
+import nhom13.vn.service.impl.LeaveBalanceServiceImpl;
 import nhom13.vn.service.impl.UserServiceImpl;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @WebServlet({
         "/admin/users",
@@ -23,6 +29,7 @@ import nhom13.vn.service.impl.UserServiceImpl;
 public class AdminUserController extends HttpServlet {
 
     IUserService userService = new UserServiceImpl();
+    ILeaveBalanceService leaveBalanceService = LeaveBalanceServiceImpl.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -40,8 +47,10 @@ public class AdminUserController extends HttpServlet {
         else if (uri.contains("/edit")) {
             int id = Integer.parseInt(req.getParameter("id"));
             User user = userService.findById(id);
+            LeaveBalance leaveBalance = leaveBalanceService.ensureDefaultForUser(user);
 
             req.setAttribute("user", user);
+            req.setAttribute("leaveRemainingDays", leaveBalance != null ? leaveBalance.getRemainingDays() : null);
             req.getRequestDispatcher("/view/admin/user-form.jsp")
                     .forward(req, resp);
         }
@@ -61,8 +70,17 @@ public class AdminUserController extends HttpServlet {
         else {
             List<String> roles = Arrays.asList("EMPLOYEE", "MANAGER");
             List<User> users = userService.findByRoles(roles);
+            Map<Integer, Integer> leaveRemainingMap = new HashMap<>();
+
+            for (User u : users) {
+                LeaveBalance leaveBalance = leaveBalanceService.ensureDefaultForUser(u);
+                if (leaveBalance != null) {
+                    leaveRemainingMap.put(u.getId(), leaveBalance.getRemainingDays());
+                }
+            }
 
             req.setAttribute("list", users);
+            req.setAttribute("leaveRemainingMap", leaveRemainingMap);
             req.getRequestDispatcher("/view/admin/users.jsp")
                     .forward(req, resp);
         }
@@ -77,6 +95,7 @@ public class AdminUserController extends HttpServlet {
         String fullName = req.getParameter("fullName");
         String email = req.getParameter("email");
         String role = req.getParameter("role"); // 🔥 admin có role
+        String remainingDaysRaw = req.getParameter("remainingDays");
 
         // INSERT
         if (uri.contains("/insert")) {
@@ -94,6 +113,14 @@ public class AdminUserController extends HttpServlet {
 
             userService.insert(user);
 
+            if (remainingDaysRaw != null && !remainingDaysRaw.trim().isEmpty()) {
+                try {
+                    int remainingDays = Integer.parseInt(remainingDaysRaw);
+                    leaveBalanceService.updateRemainingDays(user.getId(), remainingDays);
+                } catch (NumberFormatException ignored) {
+                }
+            }
+
             resp.sendRedirect(req.getContextPath() + "/admin/users");
         }
 
@@ -108,6 +135,15 @@ public class AdminUserController extends HttpServlet {
             user.setRole(role); // 🔥 admin sửa role được
 
             userService.update(user);
+
+            LeaveBalance leaveBalance = leaveBalanceService.ensureDefaultForUser(user);
+            if (leaveBalance != null && remainingDaysRaw != null && !remainingDaysRaw.trim().isEmpty()) {
+                try {
+                    int remainingDays = Integer.parseInt(remainingDaysRaw);
+                    leaveBalanceService.updateRemainingDays(user.getId(), remainingDays);
+                } catch (NumberFormatException ignored) {
+                }
+            }
 
             resp.sendRedirect(req.getContextPath() + "/admin/users");
         }

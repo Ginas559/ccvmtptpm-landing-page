@@ -1,13 +1,18 @@
 package nhom13.vn.dao.impl;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import nhom13.vn.config.JPAConfig;
 import nhom13.vn.dao.ILeaveRequestDao;
+import nhom13.vn.entity.LeaveBalance;
 import nhom13.vn.entity.LeaveRequest;
 
 public class LeaveRequestDaoImpl implements ILeaveRequestDao {
@@ -170,18 +175,74 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
 
     @Override
     public boolean approvePendingForManager(int leaveId) {
+        return approveAndConsumeDays(leaveId, true);
+    }
+
+    @Override
+    public boolean approvePendingForAdmin(int leaveId) {
+        return approveAndConsumeDays(leaveId, false);
+    }
+
+    private boolean approveAndConsumeDays(int leaveId, boolean managerScopeOnlyEmployee) {
         EntityManager em = JPAConfig.getEntityManager();
         EntityTransaction trans = em.getTransaction();
+
         try {
             trans.begin();
-            int updated = em.createQuery(
-                    "UPDATE LeaveRequest lr SET lr.status = 'APPROVED' "
-                            + "WHERE lr.id = :id AND lr.status = 'PENDING' AND lr.user.role = 'EMPLOYEE'"
-            )
-            .setParameter("id", leaveId)
-            .executeUpdate();
+
+            String jpql = "SELECT lr FROM LeaveRequest lr WHERE lr.id = :id AND lr.status = 'PENDING'";
+            if (managerScopeOnlyEmployee) {
+                jpql += " AND lr.user.role = 'EMPLOYEE'";
+            }
+
+            LeaveRequest leaveRequest;
+            try {
+                leaveRequest = em.createQuery(jpql, LeaveRequest.class)
+                        .setParameter("id", leaveId)
+                        .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                        .getSingleResult();
+            } catch (NoResultException e) {
+                trans.rollback();
+                return false;
+            }
+
+            LeaveBalance leaveBalance;
+            try {
+                leaveBalance = em.createQuery(
+                                "SELECT lb FROM LeaveBalance lb WHERE lb.user.id = :userId",
+                                LeaveBalance.class
+                        )
+                        .setParameter("userId", leaveRequest.getUser().getId())
+                        .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                        .getSingleResult();
+            } catch (NoResultException e) {
+                String role = leaveRequest.getUser().getRole();
+                if (!"EMPLOYEE".equals(role) && !"MANAGER".equals(role)) {
+                    trans.rollback();
+                    return false;
+                }
+
+                leaveBalance = new LeaveBalance();
+                leaveBalance.setUser(leaveRequest.getUser());
+                leaveBalance.setTotalDays(12);
+                leaveBalance.setUsedDays(0);
+                leaveBalance.setRemainingDays(12);
+                leaveBalance.setLastResetYear(LocalDate.now().getYear());
+                em.persist(leaveBalance);
+            }
+
+            int requestedDays = calculateRequestedDays(leaveRequest);
+            if (requestedDays <= 0 || leaveBalance.getRemainingDays() < requestedDays) {
+                trans.rollback();
+                return false;
+            }
+
+            leaveRequest.setStatus("APPROVED");
+            leaveBalance.setUsedDays(leaveBalance.getUsedDays() + requestedDays);
+            leaveBalance.setRemainingDays(leaveBalance.getRemainingDays() - requestedDays);
+
             trans.commit();
-            return updated > 0;
+            return true;
         } catch (Exception e) {
             if (trans.isActive()) {
                 trans.rollback();
@@ -192,28 +253,21 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
         }
     }
 
-    @Override
-    public boolean approvePendingForAdmin(int leaveId) {
-        EntityManager em = JPAConfig.getEntityManager();
-        EntityTransaction trans = em.getTransaction();
-        try {
-            trans.begin();
-            int updated = em.createQuery(
-                    "UPDATE LeaveRequest lr SET lr.status = 'APPROVED' "
-                            + "WHERE lr.id = :id AND lr.status = 'PENDING'"
-            )
-            .setParameter("id", leaveId)
-            .executeUpdate();
-            trans.commit();
-            return updated > 0;
-        } catch (Exception e) {
-            if (trans.isActive()) {
-                trans.rollback();
-            }
-            return false;
-        } finally {
-            em.close();
+    private int calculateRequestedDays(LeaveRequest leaveRequest) {
+        LocalDate startDate = LocalDate.ofInstant(
+                java.time.Instant.ofEpochMilli(leaveRequest.getStartDate().getTime()),
+                ZoneId.systemDefault()
+        );
+        LocalDate endDate = LocalDate.ofInstant(
+                java.time.Instant.ofEpochMilli(leaveRequest.getEndDate().getTime()),
+                ZoneId.systemDefault()
+        );
+
+        if (endDate.isBefore(startDate)) {
+            return 0;
         }
+
+        return (int) (ChronoUnit.DAYS.between(startDate, endDate) + 1);
     }
 
     public static LeaveRequestDaoImpl getInstance() {
