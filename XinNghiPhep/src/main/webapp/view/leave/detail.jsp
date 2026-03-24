@@ -48,6 +48,10 @@
 				<input type="hidden" name="id" value="${leaveRequest.id}" />
 				<button type="submit">Approve</button>
 			</form>
+			<form action="${pageContext.request.contextPath}/leave/reject" method="post" style="margin-top:10px;">
+				<input type="hidden" name="id" value="${leaveRequest.id}" />
+				<button type="submit">Reject</button>
+			</form>
 		</c:if>
 	</c:if>
 </body>

@@ -44,17 +44,28 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     }
     @Override
     public List<LeaveRequest> findByUser(int userId) {
+        return findByUserAndStatus(userId, null);
+    }
+
+    @Override
+    public List<LeaveRequest> findByUserAndStatus(int userId, String status) {
 
         EntityManager em = JPAConfig.getEntityManager();
 
         try {
+            String jpql = "SELECT lr FROM LeaveRequest lr WHERE lr.user.id = :uid";
+            if (status != null && !status.isBlank()) {
+                jpql += " AND lr.status = :status";
+            }
+            jpql += " ORDER BY lr.startDate DESC";
+
             TypedQuery<LeaveRequest> query =
-                em.createQuery(
-                    "SELECT lr FROM LeaveRequest lr WHERE lr.user.id = :uid ORDER BY lr.startDate DESC",
-                    LeaveRequest.class
-                );
+                em.createQuery(jpql, LeaveRequest.class);
 
             query.setParameter("uid", userId);
+            if (status != null && !status.isBlank()) {
+                query.setParameter("status", status);
+            }
 
             return query.getResultList();
 
@@ -83,24 +94,29 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
 
     @Override
     public List<LeaveRequest> findPendingByUser(int userId) {
-        EntityManager em = JPAConfig.getEntityManager();
-        try {
-            return em.createQuery(
-                    "SELECT lr FROM LeaveRequest lr WHERE lr.user.id = :uid AND lr.status = 'PENDING' ORDER BY lr.startDate DESC",
-                    LeaveRequest.class
-            ).setParameter("uid", userId).getResultList();
-        } finally {
-            em.close();
-        }
+        return findByUserAndStatus(userId, "PENDING");
     }
     @Override
     public List<LeaveRequest> findAll() {
+        return findAllByStatus(null);
+    }
+
+    @Override
+    public List<LeaveRequest> findAllByStatus(String status) {
         EntityManager em = JPAConfig.getEntityManager();
         try {
-            return em.createQuery(
-                "SELECT lr FROM LeaveRequest lr ORDER BY lr.startDate DESC",
-                LeaveRequest.class
-            ).getResultList();
+            String jpql = "SELECT lr FROM LeaveRequest lr";
+            if (status != null && !status.isBlank()) {
+                jpql += " WHERE lr.status = :status";
+            }
+            jpql += " ORDER BY lr.startDate DESC";
+
+            TypedQuery<LeaveRequest> query = em.createQuery(jpql, LeaveRequest.class);
+            if (status != null && !status.isBlank()) {
+                query.setParameter("status", status);
+            }
+
+            return query.getResultList();
 
         } finally {
             em.close();
@@ -119,25 +135,30 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
 
     @Override
     public List<LeaveRequest> findPendingAll() {
-        EntityManager em = JPAConfig.getEntityManager();
-        try {
-            return em.createQuery(
-                    "SELECT lr FROM LeaveRequest lr WHERE lr.status = 'PENDING' ORDER BY lr.startDate DESC",
-                    LeaveRequest.class
-            ).getResultList();
-        } finally {
-            em.close();
-        }
+        return findAllByStatus("PENDING");
     }
 
     @Override
     public List<LeaveRequest> findAllEmployees() {
+        return findAllEmployeesByStatus(null);
+    }
+
+    @Override
+    public List<LeaveRequest> findAllEmployeesByStatus(String status) {
         EntityManager em = JPAConfig.getEntityManager();
         try {
-            return em.createQuery(
-                "SELECT lr FROM LeaveRequest lr WHERE lr.user.role = 'EMPLOYEE' ORDER BY lr.startDate DESC",
-                LeaveRequest.class
-            ).getResultList();
+            String jpql = "SELECT lr FROM LeaveRequest lr WHERE lr.user.role = 'EMPLOYEE'";
+            if (status != null && !status.isBlank()) {
+                jpql += " AND lr.status = :status";
+            }
+            jpql += " ORDER BY lr.startDate DESC";
+
+            TypedQuery<LeaveRequest> query = em.createQuery(jpql, LeaveRequest.class);
+            if (status != null && !status.isBlank()) {
+                query.setParameter("status", status);
+            }
+
+            return query.getResultList();
         } finally {
             em.close();
         }
@@ -162,15 +183,7 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
 
     @Override
     public List<LeaveRequest> findPendingEmployees() {
-        EntityManager em = JPAConfig.getEntityManager();
-        try {
-            return em.createQuery(
-                    "SELECT lr FROM LeaveRequest lr WHERE lr.user.role = 'EMPLOYEE' AND lr.status = 'PENDING' ORDER BY lr.startDate DESC",
-                    LeaveRequest.class
-            ).getResultList();
-        } finally {
-            em.close();
-        }
+        return findAllEmployeesByStatus("PENDING");
     }
 
     @Override
@@ -181,6 +194,16 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     @Override
     public boolean approvePendingForAdmin(int leaveId) {
         return approveAndConsumeDays(leaveId, false);
+    }
+
+    @Override
+    public boolean rejectPendingForManager(int leaveId) {
+        return rejectPending(leaveId, true);
+    }
+
+    @Override
+    public boolean rejectPendingForAdmin(int leaveId) {
+        return rejectPending(leaveId, false);
     }
 
     private boolean approveAndConsumeDays(int leaveId, boolean managerScopeOnlyEmployee) {
@@ -240,6 +263,43 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
             leaveRequest.setStatus("APPROVED");
             leaveBalance.setUsedDays(leaveBalance.getUsedDays() + requestedDays);
             leaveBalance.setRemainingDays(leaveBalance.getRemainingDays() - requestedDays);
+
+            trans.commit();
+            return true;
+        } catch (Exception e) {
+            if (trans.isActive()) {
+                trans.rollback();
+            }
+            return false;
+        } finally {
+            em.close();
+        }
+    }
+
+    private boolean rejectPending(int leaveId, boolean managerScopeOnlyEmployee) {
+        EntityManager em = JPAConfig.getEntityManager();
+        EntityTransaction trans = em.getTransaction();
+
+        try {
+            trans.begin();
+
+            String jpql = "SELECT lr FROM LeaveRequest lr WHERE lr.id = :id AND lr.status = 'PENDING'";
+            if (managerScopeOnlyEmployee) {
+                jpql += " AND lr.user.role = 'EMPLOYEE'";
+            }
+
+            LeaveRequest leaveRequest;
+            try {
+                leaveRequest = em.createQuery(jpql, LeaveRequest.class)
+                        .setParameter("id", leaveId)
+                        .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                        .getSingleResult();
+            } catch (NoResultException e) {
+                trans.rollback();
+                return false;
+            }
+
+            leaveRequest.setStatus("REJECTED");
 
             trans.commit();
             return true;

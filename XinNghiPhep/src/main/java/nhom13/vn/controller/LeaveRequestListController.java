@@ -5,12 +5,10 @@ import jakarta.servlet.http.*;
 
 import nhom13.vn.entity.LeaveRequest;
 import nhom13.vn.entity.User;
-import nhom13.vn.factory.LeaveRequestFactory;
 import nhom13.vn.service.ILeaveRequestService;
 import nhom13.vn.service.impl.LeaveRequestServiceImpl;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.util.List;
 @WebServlet("/leave/list")
 public class LeaveRequestListController extends HttpServlet {
@@ -28,23 +26,38 @@ public class LeaveRequestListController extends HttpServlet {
             return;
         }
 
-        List<LeaveRequest> list = null;
+        String status = req.getParameter("status");
+        List<LeaveRequest> list = service.getAllForViewer(user, status);
 
-        String role = user.getRole();
-
-        if ("EMPLOYEE".equals(role)) {
-            list = service.getByUser(user.getId());
-
-        } else if ("MANAGER".equals(role)) {
-            list = service.getAllEmployees();
-
-        } else if ("SUPER_ADMIN".equals(role)) {
-            list = service.getAll();
-        }
+        String normalizedStatus = normalizeStatus(status);
+        String pageTitle = (normalizedStatus == null)
+                ? "All Leave Requests"
+                : normalizedStatus + " Leave Requests";
 
         req.setAttribute("leaveList", list);
+        req.setAttribute("selectedStatus", normalizedStatus == null ? "ALL" : normalizedStatus);
+        req.setAttribute("pageTitle", pageTitle);
 
         req.getRequestDispatcher("/view/leave/list.jsp")
            .forward(req, resp);
+    }
+
+    private String normalizeStatus(String status) {
+        if (status == null) {
+            return null;
+        }
+
+        String normalized = status.trim().toUpperCase();
+        if (normalized.isEmpty() || "ALL".equals(normalized)) {
+            return null;
+        }
+
+        if (!"PENDING".equals(normalized)
+                && !"APPROVED".equals(normalized)
+                && !"REJECTED".equals(normalized)) {
+            return null;
+        }
+
+        return normalized;
     }
 }

@@ -1,6 +1,7 @@
 package nhom13.vn.entity;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import jakarta.persistence.*;
 
 @Entity
@@ -20,6 +21,14 @@ public class LeaveBalance implements Serializable {
 
     @Column(nullable = false)
     private int lastResetYear;
+
+    @PrePersist
+    @PreUpdate
+    private void ensureDefaults() {
+        if (lastResetYear <= 0) {
+            lastResetYear = LocalDate.now().getYear();
+        }
+    }
 
     public int getId() {
         return id;
