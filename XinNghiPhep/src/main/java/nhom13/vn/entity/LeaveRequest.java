@@ -27,6 +27,9 @@ public class LeaveRequest implements Serializable {
 
     private String status; // Chờ duyệt, Đã duyệt, Từ chối
 
+    @Transient
+    private String reviewerComment;
+
     // Constructors, Getters, Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -45,4 +48,7 @@ public class LeaveRequest implements Serializable {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getReviewerComment() { return reviewerComment; }
+    public void setReviewerComment(String reviewerComment) { this.reviewerComment = reviewerComment; }
 }

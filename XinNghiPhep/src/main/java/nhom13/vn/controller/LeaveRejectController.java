@@ -36,6 +36,7 @@ public class LeaveRejectController extends HttpServlet {
         }
 
         String idRaw = req.getParameter("id");
+        String note = req.getParameter("comment");
         int leaveId;
         try {
             leaveId = Integer.parseInt(idRaw);
@@ -47,7 +48,7 @@ public class LeaveRejectController extends HttpServlet {
             return;
         }
 
-        boolean rejected = service.rejectForViewer(leaveId, user);
+        boolean rejected = service.rejectForViewer(leaveId, user, note);
         if (rejected) {
             resp.sendRedirect(req.getContextPath() + "/leave/pending?msg=rejected");
             return;

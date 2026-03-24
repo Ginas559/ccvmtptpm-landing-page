@@ -44,13 +44,11 @@
 		</table>
 
 		<c:if test="${(sessionScope.account.role == 'MANAGER' || sessionScope.account.role == 'SUPER_ADMIN') && leaveRequest.status == 'PENDING'}">
-			<form action="${pageContext.request.contextPath}/leave/approve" method="post" style="margin-top:10px;">
+			<form method="post" style="margin-top:10px;">
 				<input type="hidden" name="id" value="${leaveRequest.id}" />
-				<button type="submit">Approve</button>
-			</form>
-			<form action="${pageContext.request.contextPath}/leave/reject" method="post" style="margin-top:10px;">
-				<input type="hidden" name="id" value="${leaveRequest.id}" />
-				<button type="submit">Reject</button>
+				<input type="text" name="comment" placeholder="Optional comment" />
+				<button type="submit" formaction="${pageContext.request.contextPath}/leave/approve">Approve</button>
+				<button type="submit" formaction="${pageContext.request.contextPath}/leave/reject">Reject</button>
 			</form>
 		</c:if>
 	</c:if>

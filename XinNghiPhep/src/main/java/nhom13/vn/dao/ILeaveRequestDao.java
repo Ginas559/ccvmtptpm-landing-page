@@ -3,6 +3,7 @@ package nhom13.vn.dao;
 import java.util.List;
 
 import nhom13.vn.entity.LeaveRequest;
+import nhom13.vn.entity.User;
 
 public interface ILeaveRequestDao {
     void insert(LeaveRequest lr);
@@ -10,6 +11,8 @@ public interface ILeaveRequestDao {
     List<LeaveRequest> findByUser(int userId);
 
     List<LeaveRequest> findByUserAndStatus(int userId, String status);
+
+    List<LeaveRequest> findByUserAndStatusWithReview(int userId, String status);
 
     LeaveRequest findByIdForUser(int leaveId, int userId);
 
@@ -33,9 +36,17 @@ public interface ILeaveRequestDao {
 
     boolean approvePendingForManager(int leaveId);
 
+    boolean approvePendingForManager(int leaveId, User reviewer, String note);
+
     boolean approvePendingForAdmin(int leaveId);
+
+    boolean approvePendingForAdmin(int leaveId, User reviewer, String note);
 
     boolean rejectPendingForManager(int leaveId);
 
+    boolean rejectPendingForManager(int leaveId, User reviewer, String note);
+
     boolean rejectPendingForAdmin(int leaveId);
+
+    boolean rejectPendingForAdmin(int leaveId, User reviewer, String note);
 }

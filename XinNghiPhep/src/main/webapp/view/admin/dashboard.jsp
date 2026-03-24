@@ -23,6 +23,7 @@
 	<ul>
 		<li><a href="${pageContext.request.contextPath}/admin/users">Manage
 				Users</a></li>
+		<%--
 		<li><a href="${pageContext.request.contextPath}/admin/company">Manage
 				Company</a></li>
 		<li><a href="${pageContext.request.contextPath}/admin/leave">Manage
@@ -32,6 +33,7 @@
 		<li><a
 			href="${pageContext.request.contextPath}/admin/notifications">Manage
 				Notifications</a></li>
+		--%>
 		<li><a href="${pageContext.request.contextPath}/leave/list">
 				View Leave Requests </a></li>
 	</ul>

@@ -20,14 +20,17 @@
 				View Employees </a></li>
 		<li><a href="${pageContext.request.contextPath}/leave/create">
 				Request Leave </a></li>
-		<li><a href="${pageContext.request.contextPath}/manager/requests">
-				Check Leave Requests </a></li>
+	    <%--
+        <li><a href="${pageContext.request.contextPath}/manager/requests">
+            Check Leave Requests </a></li>
 
-		<li><a href="${pageContext.request.contextPath}/manager/approve">
-				Approval Leave </a></li>
+        <li><a href="${pageContext.request.contextPath}/manager/approve">
+            Approval Leave </a></li>
 
-		<li><a href="${pageContext.request.contextPath}/manager/reports">
-				Create Leave Reports </a></li>
+        <li><a href="${pageContext.request.contextPath}/manager/reports">
+            Create Leave Reports </a></li>
+        --%>
+
 		<li><a href="${pageContext.request.contextPath}/leave/list">
 				View Leave Requests </a></li>
 		<li><a href="${pageContext.request.contextPath}/manager/balance">

@@ -58,6 +58,11 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
     }
 
     @Override
+    public List<LeaveRequest> getByUserWithReview(int userId, String status) {
+        return dao.findByUserAndStatusWithReview(userId, normalizeStatus(status));
+    }
+
+    @Override
     public List<LeaveRequest> getAllForViewer(User viewer, String status) {
         if (viewer == null) {
             return List.of();
@@ -67,7 +72,7 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         String role = viewer.getRole();
 
         if ("EMPLOYEE".equals(role)) {
-            return dao.findByUserAndStatus(viewer.getId(), normalizedStatus);
+            return dao.findByUserAndStatusWithReview(viewer.getId(), normalizedStatus);
         }
 
         if ("MANAGER".equals(role)) {
@@ -106,6 +111,11 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
 
     @Override
     public boolean approveForViewer(int leaveId, User viewer) {
+        return approveForViewer(leaveId, viewer, null);
+    }
+
+    @Override
+    public boolean approveForViewer(int leaveId, User viewer, String note) {
         if (viewer == null || leaveId <= 0) {
             return false;
         }
@@ -113,11 +123,11 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         String role = viewer.getRole();
 
         if ("MANAGER".equals(role)) {
-            return dao.approvePendingForManager(leaveId);
+            return dao.approvePendingForManager(leaveId, viewer, note);
         }
 
         if ("SUPER_ADMIN".equals(role)) {
-            return dao.approvePendingForAdmin(leaveId);
+            return dao.approvePendingForAdmin(leaveId, viewer, note);
         }
 
         return false;
@@ -125,6 +135,11 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
 
     @Override
     public boolean rejectForViewer(int leaveId, User viewer) {
+        return rejectForViewer(leaveId, viewer, null);
+    }
+
+    @Override
+    public boolean rejectForViewer(int leaveId, User viewer, String note) {
         if (viewer == null || leaveId <= 0) {
             return false;
         }
@@ -132,11 +147,11 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         String role = viewer.getRole();
 
         if ("MANAGER".equals(role)) {
-            return dao.rejectPendingForManager(leaveId);
+            return dao.rejectPendingForManager(leaveId, viewer, note);
         }
 
         if ("SUPER_ADMIN".equals(role)) {
-            return dao.rejectPendingForAdmin(leaveId);
+            return dao.rejectPendingForAdmin(leaveId, viewer, note);
         }
 
         return false;
