@@ -33,4 +33,6 @@ public interface ILeaveRequestService {
     boolean rejectForViewer(int leaveId, User viewer);
 
     boolean rejectForViewer(int leaveId, User viewer, String note);
+
+    boolean cancelForViewer(int leaveId, User viewer);
 }

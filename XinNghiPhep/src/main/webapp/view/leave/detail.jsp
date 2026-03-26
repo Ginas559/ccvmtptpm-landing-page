@@ -43,6 +43,13 @@
 			</tr>
 		</table>
 
+		<c:if test="${sessionScope.account.role == 'EMPLOYEE' && leaveRequest.status == 'PENDING'}">
+			<form method="post" action="${pageContext.request.contextPath}/leave/cancel" style="margin-top:10px;">
+				<input type="hidden" name="id" value="${leaveRequest.id}" />
+				<button type="submit">Cancel</button>
+			</form>
+		</c:if>
+
 		<c:if test="${(sessionScope.account.role == 'MANAGER' || sessionScope.account.role == 'SUPER_ADMIN') && leaveRequest.status == 'PENDING'}">
 			<form method="post" style="margin-top:10px;">
 				<input type="hidden" name="id" value="${leaveRequest.id}" />

@@ -21,9 +21,17 @@
             <option value="PENDING" ${selectedStatus == 'PENDING' ? 'selected' : ''}>PENDING</option>
             <option value="APPROVED" ${selectedStatus == 'APPROVED' ? 'selected' : ''}>APPROVED</option>
             <option value="REJECTED" ${selectedStatus == 'REJECTED' ? 'selected' : ''}>REJECTED</option>
+            <option value="CANCELLED" ${selectedStatus == 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
         </select>
         <button type="submit">Filter</button>
     </form>
+
+    <c:if test="${param.msg == 'cancelled'}">
+        <p style="color: green;">Leave request cancelled successfully.</p>
+    </c:if>
+    <c:if test="${param.msg == 'notfound'}">
+        <p style="color: red;">Unable to cancel: request not found or already processed.</p>
+    </c:if>
 
     <table border="1">
         <tr>
@@ -46,6 +54,13 @@
                 <td>${empty lr.reviewerComment ? '-' : lr.reviewerComment}</td>
                 <td>
                     <a href="${pageContext.request.contextPath}/leave/detail?id=${lr.id}">View</a>
+                    <c:if test="${sessionScope.account.role == 'EMPLOYEE' && lr.status == 'PENDING'}">
+                        <br />
+                        <form method="post" action="${pageContext.request.contextPath}/leave/cancel" style="display:inline;">
+                            <input type="hidden" name="id" value="${lr.id}" />
+                            <button type="submit">Cancel</button>
+                        </form>
+                    </c:if>
                 </td>
             </tr>
         </c:forEach>
