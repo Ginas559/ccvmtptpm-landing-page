@@ -1,0 +1,9 @@
+.idea/
+.smarttomcat/
+target/
+
+seed_sample_data.sql
+
+*.log
+*.tmp
+*.bak

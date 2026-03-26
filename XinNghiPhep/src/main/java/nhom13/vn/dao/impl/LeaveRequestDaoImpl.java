@@ -118,12 +118,17 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
         EntityManager em = JPAConfig.getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT lr FROM LeaveRequest lr WHERE lr.id = :id AND lr.user.id = :uid",
-                    LeaveRequest.class
+                    "SELECT lr, la.note FROM LeaveRequest lr "
+                            + "LEFT JOIN LeaveApproval la ON la.leaveRequest.id = lr.id "
+                            + "WHERE lr.id = :id AND lr.user.id = :uid",
+                    Object[].class
             )
             .setParameter("id", leaveId)
             .setParameter("uid", userId)
-            .getSingleResult();
+            .getResultStream()
+            .findFirst()
+            .map(this::mapLeaveRequestWithReviewComment)
+            .orElse(null);
         } catch (NoResultException e) {
             return null;
         } finally {
@@ -167,7 +172,17 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     public LeaveRequest findById(int leaveId) {
         EntityManager em = JPAConfig.getEntityManager();
         try {
-            return em.find(LeaveRequest.class, leaveId);
+            return em.createQuery(
+                    "SELECT lr, la.note FROM LeaveRequest lr "
+                            + "LEFT JOIN LeaveApproval la ON la.leaveRequest.id = lr.id "
+                            + "WHERE lr.id = :id",
+                    Object[].class
+            )
+            .setParameter("id", leaveId)
+            .getResultStream()
+            .findFirst()
+            .map(this::mapLeaveRequestWithReviewComment)
+            .orElse(null);
         } finally {
             em.close();
         }
@@ -211,11 +226,16 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
         EntityManager em = JPAConfig.getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT lr FROM LeaveRequest lr WHERE lr.id = :id AND lr.user.role = 'EMPLOYEE'",
-                    LeaveRequest.class
+                    "SELECT lr, la.note FROM LeaveRequest lr "
+                            + "LEFT JOIN LeaveApproval la ON la.leaveRequest.id = lr.id "
+                            + "WHERE lr.id = :id AND lr.user.role = 'EMPLOYEE'",
+                    Object[].class
             )
             .setParameter("id", leaveId)
-            .getSingleResult();
+            .getResultStream()
+            .findFirst()
+            .map(this::mapLeaveRequestWithReviewComment)
+            .orElse(null);
         } catch (NoResultException e) {
             return null;
         } finally {
@@ -416,12 +436,16 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     private List<LeaveRequest> mapLeaveRequestsWithReviewComment(List<Object[]> rows) {
         List<LeaveRequest> result = new ArrayList<>(rows.size());
         for (Object[] row : rows) {
-            LeaveRequest leaveRequest = (LeaveRequest) row[0];
-            String reviewerComment = (String) row[1];
-            leaveRequest.setReviewerComment(reviewerComment);
-            result.add(leaveRequest);
+            result.add(mapLeaveRequestWithReviewComment(row));
         }
         return result;
+    }
+
+    private LeaveRequest mapLeaveRequestWithReviewComment(Object[] row) {
+        LeaveRequest leaveRequest = (LeaveRequest) row[0];
+        String reviewerComment = (String) row[1];
+        leaveRequest.setReviewerComment(reviewerComment);
+        return leaveRequest;
     }
 
     private int calculateRequestedDays(LeaveRequest leaveRequest) {

@@ -41,6 +41,10 @@
 				<th>Reason</th>
 				<td>${leaveRequest.reason}</td>
 			</tr>
+			<tr>
+				<th>Comment</th>
+				<td>${empty leaveRequest.reviewerComment ? '-' : leaveRequest.reviewerComment}</td>
+			</tr>
 		</table>
 
 		<c:if test="${(sessionScope.account.role == 'MANAGER' || sessionScope.account.role == 'SUPER_ADMIN') && leaveRequest.status == 'PENDING'}">
