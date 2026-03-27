@@ -16,6 +16,9 @@
 	<c:if test="${param.msg == 'rejected'}">
 		<p style="color: green;">Leave request rejected successfully.</p>
 	</c:if>
+	<c:if test="${param.msg == 'cancelled'}">
+		<p style="color: green;">Leave request cancelled successfully.</p>
+	</c:if>
 	<c:if test="${param.msg == 'notfound'}">
 		<p style="color: red;">Unable to process: request not found or already processed.</p>
 	</c:if>
@@ -31,6 +34,7 @@
 			<option value="PENDING" ${selectedStatus == 'PENDING' ? 'selected' : ''}>PENDING</option>
 			<option value="APPROVED" ${selectedStatus == 'APPROVED' ? 'selected' : ''}>APPROVED</option>
 			<option value="REJECTED" ${selectedStatus == 'REJECTED' ? 'selected' : ''}>REJECTED</option>
+			<option value="CANCELLED" ${selectedStatus == 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
 		</select>
 		<button type="submit">Filter</button>
 	</form>
@@ -58,6 +62,13 @@
 				<td>${empty lr.reviewerComment ? '-' : lr.reviewerComment}</td>
 				<td>
 					<a href="${pageContext.request.contextPath}/leave/detail?id=${lr.id}">View</a>
+					<c:if test="${sessionScope.account.role == 'EMPLOYEE' && lr.status == 'PENDING'}">
+						<br />
+						<form method="post" action="${pageContext.request.contextPath}/leave/cancel" style="display:inline;">
+							<input type="hidden" name="id" value="${lr.id}" />
+							<button type="submit">Cancel</button>
+						</form>
+					</c:if>
 					<c:if test="${(sessionScope.account.role == 'MANAGER' || sessionScope.account.role == 'SUPER_ADMIN') && lr.status == 'PENDING'}">
 						<br />
 						<form method="post" style="display:inline;">

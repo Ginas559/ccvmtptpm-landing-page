@@ -62,7 +62,8 @@ public class EmployeeLeaveStatusController extends HttpServlet {
 
         if (!"PENDING".equals(normalized)
                 && !"APPROVED".equals(normalized)
-                && !"REJECTED".equals(normalized)) {
+                && !"REJECTED".equals(normalized)
+                && !"CANCELLED".equals(normalized)) {
             return null;
         }
 

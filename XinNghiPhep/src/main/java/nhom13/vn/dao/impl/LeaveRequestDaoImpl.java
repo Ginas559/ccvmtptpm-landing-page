@@ -268,6 +268,44 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
         return rejectPending(leaveId, false, reviewer, note);
     }
 
+    @Override
+    public boolean cancelPendingForUser(int leaveId, int userId) {
+        EntityManager em = JPAConfig.getEntityManager();
+        EntityTransaction trans = em.getTransaction();
+
+        try {
+            trans.begin();
+
+            LeaveRequest leaveRequest = em.createQuery(
+                            "SELECT lr FROM LeaveRequest lr WHERE lr.id = :id AND lr.user.id = :userId AND lr.status = 'PENDING'",
+                            LeaveRequest.class
+                    )
+                    .setParameter("id", leaveId)
+                    .setParameter("userId", userId)
+                    .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                    .getResultStream()
+                    .findFirst()
+                    .orElse(null);
+
+            if (leaveRequest == null) {
+                trans.rollback();
+                return false;
+            }
+
+            leaveRequest.setStatus("CANCELLED");
+
+            trans.commit();
+            return true;
+        } catch (Exception e) {
+            if (trans.isActive()) {
+                trans.rollback();
+            }
+            return false;
+        } finally {
+            em.close();
+        }
+    }
+
     private boolean approveAndConsumeDays(int leaveId, boolean managerScopeOnlyEmployee, User reviewer, String note) {
         EntityManager em = JPAConfig.getEntityManager();
         EntityTransaction trans = em.getTransaction();

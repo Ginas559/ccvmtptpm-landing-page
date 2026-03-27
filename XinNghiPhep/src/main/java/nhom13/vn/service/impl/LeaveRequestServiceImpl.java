@@ -157,6 +157,19 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         return false;
     }
 
+    @Override
+    public boolean cancelForViewer(int leaveId, User viewer) {
+        if (viewer == null || leaveId <= 0) {
+            return false;
+        }
+
+        if (!"EMPLOYEE".equals(viewer.getRole())) {
+            return false;
+        }
+
+        return dao.cancelPendingForUser(leaveId, viewer.getId());
+    }
+
     private String normalizeStatus(String status) {
         if (status == null) {
             return null;
@@ -169,7 +182,8 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
 
         if (!"PENDING".equals(normalized)
                 && !"APPROVED".equals(normalized)
-                && !"REJECTED".equals(normalized)) {
+                && !"REJECTED".equals(normalized)
+                && !"CANCELLED".equals(normalized)) {
             return null;
         }
 

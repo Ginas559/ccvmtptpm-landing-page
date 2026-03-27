@@ -49,4 +49,6 @@ public interface ILeaveRequestDao {
     boolean rejectPendingForAdmin(int leaveId);
 
     boolean rejectPendingForAdmin(int leaveId, User reviewer, String note);
+
+    boolean cancelPendingForUser(int leaveId, int userId);
 }
