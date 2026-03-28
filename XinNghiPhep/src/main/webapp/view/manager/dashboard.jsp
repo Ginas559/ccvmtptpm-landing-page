@@ -14,6 +14,8 @@
 	<ul>
 		<li><a href="${pageContext.request.contextPath}/my-profile">
 				My Profile </a></li>
+		<li><a href="${pageContext.request.contextPath}/notifications">
+				View Notifications </a></li>
 
 		<li><a
 			href="${pageContext.request.contextPath}/manager/zemployeez">

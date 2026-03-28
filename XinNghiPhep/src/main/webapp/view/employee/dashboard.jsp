@@ -17,6 +17,8 @@
 	</hr>
 
 	<ul>
+		<li><a href="${pageContext.request.contextPath}/notifications">
+				View Notifications </a></li>
 		<li><a href="${pageContext.request.contextPath}/leave/create">
 				Request Leave </a></li>
 
