@@ -1,4 +1,7 @@
 package nhom13.vn.service.impl;
+
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import nhom13.vn.dao.impl.LeaveRequestDaoImpl;
 import nhom13.vn.service.ILeaveRequestService;
@@ -99,6 +102,10 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         }
 
         if ("MANAGER".equals(role)) {
+            LeaveRequest ownRequest = dao.findByIdForUser(leaveId, viewer.getId());
+            if (ownRequest != null) {
+                return ownRequest;
+            }
             return dao.findByIdForManager(leaveId);
         }
 
@@ -168,6 +175,27 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         }
 
         return dao.cancelPendingForUser(leaveId, viewer.getId());
+    }
+
+    @Override
+    public boolean updatePendingForEmployee(int leaveId, User employee, LocalDate startDate, LocalDate endDate,
+            String reason) {
+        if (employee == null || leaveId <= 0 ) {
+            return false;
+        }
+        
+        String role = employee.getRole() == null ? "" : employee.getRole().trim().toUpperCase();
+        if (!"EMPLOYEE".equals(role) && !"MANAGER".equals(role)) {
+            return false;
+        }
+        if (startDate == null || endDate == null || reason == null || reason.isBlank()) {
+            return false;
+        }
+        if (endDate.isBefore(startDate)) {
+            return false;
+        }
+        return dao.updatePendingForUser(leaveId, employee.getId(), Date.valueOf(startDate), Date.valueOf(endDate),
+                reason.trim());
     }
 
     private String normalizeStatus(String status) {

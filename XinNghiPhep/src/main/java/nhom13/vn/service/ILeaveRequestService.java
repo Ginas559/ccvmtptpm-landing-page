@@ -1,5 +1,6 @@
 package nhom13.vn.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import nhom13.vn.entity.LeaveRequest;
@@ -35,4 +36,10 @@ public interface ILeaveRequestService {
     boolean rejectForViewer(int leaveId, User viewer, String note);
 
     boolean cancelForViewer(int leaveId, User viewer);
+
+    /**
+     * Employee-only: updates a pending own leave request's dates and reason.
+     */
+    boolean updatePendingForEmployee(int leaveId, User employee, LocalDate startDate, LocalDate endDate,
+            String reason);
 }
