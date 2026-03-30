@@ -2,11 +2,11 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
-    <title>My Profile</title>
+    <title>Profile</title>
 </head>
 <body>
 
-<h2>My Profile</h2>
+<h2>Profile</h2>
 
 <c:if test="${param.success == 1}">
     <p style="color:green">Update thành công!</p>

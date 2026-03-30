@@ -10,14 +10,6 @@
 <body>
 	<h2>Leave Request Detail</h2>
 
-	<c:if test="${sessionScope.message != null}">
-		<p style="color: green;">${sessionScope.message}</p>
-		<c:remove var="message" scope="session" />
-	</c:if>
-	<c:if test="${param.msg == 'cannotedit'}">
-		<p style="color: red;">Chỉ được sửa đơn khi trạng thái là PENDING.</p>
-	</c:if>
-
 	<p>
 		<a href="${pageContext.request.contextPath}/leave/list">Back to all</a> |
 		<a href="${pageContext.request.contextPath}/leave/pending">Back to pending</a>
@@ -52,9 +44,6 @@
 		</table>
 
 		<c:if test="${sessionScope.account.role == 'EMPLOYEE' && leaveRequest.status == 'PENDING'}">
-			<p style="margin-top:10px;">
-				<a href="${pageContext.request.contextPath}/leave/edit?id=${leaveRequest.id}">Edit</a>
-			</p>
 			<form method="post" action="${pageContext.request.contextPath}/leave/cancel" style="margin-top:10px;">
 				<input type="hidden" name="id" value="${leaveRequest.id}" />
 				<button type="submit">Cancel</button>

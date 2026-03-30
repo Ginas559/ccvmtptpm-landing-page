@@ -1,5 +1,6 @@
 package nhom13.vn.dao;
 
+import java.sql.Date;
 import java.util.List;
 
 import nhom13.vn.entity.LeaveRequest;
@@ -51,4 +52,10 @@ public interface ILeaveRequestDao {
     boolean rejectPendingForAdmin(int leaveId, User reviewer, String note);
 
     boolean cancelPendingForUser(int leaveId, int userId);
+
+    /**
+     * Updates start/end/reason only when the request belongs to {@code userId} and status is PENDING.
+     * Re-validates remaining leave balance against the new date range inside the transaction.
+     */
+    boolean updatePendingForUser(int leaveId, int userId, Date startDate, Date endDate, String reason);
 }
