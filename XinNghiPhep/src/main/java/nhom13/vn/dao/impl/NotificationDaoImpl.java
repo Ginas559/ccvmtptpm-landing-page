@@ -24,6 +24,25 @@ public class NotificationDaoImpl implements INotificationDao {
     }
 
     @Override
+    public void insert(Notification notification) {
+        EntityManager em = JPAConfig.getEntityManager();
+        EntityTransaction trans = em.getTransaction();
+
+        try {
+            trans.begin();
+            em.persist(notification);
+            trans.commit();
+        } catch (Exception e) {
+            if (trans.isActive()) {
+                trans.rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public List<Notification> findByReceiver(int receiverId) {
         EntityManager em = JPAConfig.getEntityManager();
         try {
