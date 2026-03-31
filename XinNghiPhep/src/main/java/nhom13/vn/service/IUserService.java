@@ -20,4 +20,8 @@ public interface IUserService {
 
     List<User> findByRole(String role);
     List<User> findByRoles(List<String> roles);
+    
+    boolean changePasswordForSelf(User currentUser, String oldPassword, String newPassword);
+
+    boolean changePasswordAsAdmin(User adminUser, int targetUserId, String newPassword);
 }

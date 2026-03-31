@@ -14,12 +14,17 @@
 	<ul>
 		<li><a href="${pageContext.request.contextPath}/my-profile">
 				My Profile </a></li>
+		<li><a href="${pageContext.request.contextPath}/notifications">
+				View Notifications </a></li>
 
 		<li><a
 			href="${pageContext.request.contextPath}/manager/zemployeez">
 				View Employees </a></li>
 		<li><a href="${pageContext.request.contextPath}/leave/create">
 				Request Leave </a></li>
+				
+		<li><a href="${pageContext.request.contextPath}/manager/status">
+				Check Leave Status </a></li>
 	    <%--
         <li><a href="${pageContext.request.contextPath}/manager/requests">
             Check Leave Requests </a></li>

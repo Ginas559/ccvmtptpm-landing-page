@@ -64,6 +64,8 @@
 					<a href="${pageContext.request.contextPath}/leave/detail?id=${lr.id}">View</a>
 					<c:if test="${sessionScope.account.role == 'EMPLOYEE' && lr.status == 'PENDING'}">
 						<br />
+						<a href="${pageContext.request.contextPath}/leave/edit?id=${lr.id}">Edit</a>
+						<br />
 						<form method="post" action="${pageContext.request.contextPath}/leave/cancel" style="display:inline;">
 							<input type="hidden" name="id" value="${lr.id}" />
 							<button type="submit">Cancel</button>
