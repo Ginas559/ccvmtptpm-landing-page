@@ -9,8 +9,10 @@ import nhom13.vn.entity.User;
 import nhom13.vn.factory.LeaveRequestFactory;
 import nhom13.vn.service.ILeaveBalanceService;
 import nhom13.vn.service.ILeaveRequestService;
+import nhom13.vn.service.INotificationService;
 import nhom13.vn.service.impl.LeaveBalanceServiceImpl;
 import nhom13.vn.service.impl.LeaveRequestServiceImpl;
+import nhom13.vn.service.impl.NotificationServiceImpl;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -23,6 +25,7 @@ public class LeaveRequestController extends HttpServlet {
 
     ILeaveRequestService service = new LeaveRequestServiceImpl();
     ILeaveBalanceService leaveBalanceService = LeaveBalanceServiceImpl.getInstance();
+    INotificationService notificationService = NotificationServiceImpl.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -116,6 +119,7 @@ public class LeaveRequestController extends HttpServlet {
             LeaveRequest lr = LeaveRequestFactory.create(user, start, end, reason);
 
             service.create(lr);
+            notificationService.notifyManagersAboutSubmittedLeaveRequest(user, lr);
 
             HttpSession session = req.getSession();
 
