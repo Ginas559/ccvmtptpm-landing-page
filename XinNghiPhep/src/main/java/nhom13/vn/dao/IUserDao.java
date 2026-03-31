@@ -21,4 +21,9 @@ public interface IUserDao {
 
     List<User> findByRole(String role);
     List<User> findByRoles(List<String> roles);
+    
+    boolean updatePasswordForSelf(int userId, String oldPassword, String newPassword);
+
+    boolean updatePasswordByAdmin(int targetUserId, String newPassword);
+
 }
