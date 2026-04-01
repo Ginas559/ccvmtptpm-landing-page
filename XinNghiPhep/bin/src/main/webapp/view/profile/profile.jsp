@@ -28,5 +28,12 @@
 
 </form>
 
+<hr/>
+<c:if test="${sessionScope.account.id == user.id}">
+    <p>
+        <a href="${pageContext.request.contextPath}/change-password">Change password</a>
+    </p>
+</c:if>
+
 </body>
 </html>
