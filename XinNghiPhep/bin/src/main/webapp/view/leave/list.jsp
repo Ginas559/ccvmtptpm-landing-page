@@ -10,6 +10,11 @@
 </head>
 <body>
 	<h2>${empty pageTitle ? 'Leave Requests List' : pageTitle}</h2>
+	<c:if test="${sessionScope.account.role == 'MANAGER' || sessionScope.account.role == 'SUPER_ADMIN'}">
+		<p>
+			<a href="${pageContext.request.contextPath}/leave/report?status=${selectedStatus}">Download PDF</a>
+		</p>
+	</c:if>
 	<c:if test="${param.msg == 'approved'}">
 		<p style="color: green;">Leave request approved successfully.</p>
 	</c:if>
