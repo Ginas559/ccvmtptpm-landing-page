@@ -20,6 +20,8 @@ import nhom13.vn.entity.LeaveRequest;
 import nhom13.vn.entity.User;
 
 public class LeaveRequestDaoImpl implements ILeaveRequestDao {
+	
+	private static final int DEFAULT_LEAVE_DAYS = 12;//thêm mới
 
     private static LeaveRequestDaoImpl instance;
 
@@ -361,9 +363,16 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
 
                 leaveBalance = new LeaveBalance();
                 leaveBalance.setUser(leaveRequest.getUser());
-                leaveBalance.setTotalDays(12);
+                //leaveBalance.setTotalDays(12);
+                
+                leaveBalance.setTotalDays(DEFAULT_LEAVE_DAYS);//thêm mới
+                
                 leaveBalance.setUsedDays(0);
-                leaveBalance.setRemainingDays(12);
+                //leaveBalance.setRemainingDays(12);
+                
+                leaveBalance.setRemainingDays(DEFAULT_LEAVE_DAYS);// thêm mới
+
+                
                 leaveBalance.setLastResetYear(LocalDate.now().getYear());
                 em.persist(leaveBalance);
             }
@@ -430,9 +439,17 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
 
                 leaveBalance = new LeaveBalance();
                 leaveBalance.setUser(leaveRequest.getUser());
-                leaveBalance.setTotalDays(12);
+                //leaveBalance.setTotalDays(12);
+                
+                leaveBalance.setTotalDays(DEFAULT_LEAVE_DAYS);// thêm mới
+
+                
                 leaveBalance.setUsedDays(0);
-                leaveBalance.setRemainingDays(12);
+                //leaveBalance.setRemainingDays(12);
+                
+                leaveBalance.setRemainingDays(DEFAULT_LEAVE_DAYS);// thêm mới
+
+                
                 leaveBalance.setLastResetYear(LocalDate.now().getYear());
                 em.persist(leaveBalance);
             }
@@ -447,6 +464,9 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
             upsertApproval(em, leaveRequest, reviewer, "APPROVED", note);
             leaveBalance.setUsedDays(leaveBalance.getUsedDays() + requestedDays);
             leaveBalance.setRemainingDays(leaveBalance.getRemainingDays() - requestedDays);
+            
+            leaveBalance.setTotalDays(leaveBalance.getUsedDays() + leaveBalance.getRemainingDays());// thêm mới
+
 
             trans.commit();
             return true;
@@ -546,6 +566,10 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     }
 
     private int calculateRequestedDays(LeaveRequest leaveRequest) {
+    	
+    	if (leaveRequest.getStartDate() == null || leaveRequest.getEndDate() == null) {
+            return 0;
+        }// thêm mới
         LocalDate startDate = LocalDate.ofInstant(
                 java.time.Instant.ofEpochMilli(leaveRequest.getStartDate().getTime()),
                 ZoneId.systemDefault()
