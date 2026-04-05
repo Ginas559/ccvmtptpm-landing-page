@@ -57,5 +57,6 @@ public interface ILeaveRequestDao {
      * Updates start/end/reason only when the request belongs to {@code userId} and status is PENDING.
      * Re-validates remaining leave balance against the new date range inside the transaction.
      */
-    boolean updatePendingForUser(int leaveId, int userId, Date startDate, Date endDate, String reason);
+    boolean updatePendingForUser(int leaveId, int userId, Date startDate, Date endDate, String reason,
+            Integer leaveTypeId);
 }

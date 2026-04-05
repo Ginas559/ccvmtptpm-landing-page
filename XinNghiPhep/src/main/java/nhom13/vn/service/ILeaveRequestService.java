@@ -41,5 +41,5 @@ public interface ILeaveRequestService {
      * Employee-only: updates a pending own leave request's dates and reason.
      */
     boolean updatePendingForEmployee(int leaveId, User employee, LocalDate startDate, LocalDate endDate,
-            String reason);
+            String reason, Integer leaveTypeId);
 }

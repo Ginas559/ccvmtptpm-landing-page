@@ -179,7 +179,7 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
 
     @Override
     public boolean updatePendingForEmployee(int leaveId, User employee, LocalDate startDate, LocalDate endDate,
-            String reason) {
+            String reason, Integer leaveTypeId) {
         if (employee == null || leaveId <= 0 ) {
             return false;
         }
@@ -195,7 +195,7 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
             return false;
         }
         return dao.updatePendingForUser(leaveId, employee.getId(), Date.valueOf(startDate), Date.valueOf(endDate),
-                reason.trim());
+                reason.trim(), leaveTypeId);
     }
 
     private String normalizeStatus(String status) {

@@ -33,6 +33,12 @@
 		</li>
 
 		<li>
+			<a href="${pageContext.request.contextPath}/admin/leave-types">
+				Manage Leave Types
+			</a>
+		</li>
+
+		<li>
 			<a href="${pageContext.request.contextPath}/admin/leave-statistics">
 				View Leave Statistics
 			</a>

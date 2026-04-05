@@ -16,6 +16,10 @@ public class LeaveRequest implements Serializable {
     @JoinColumn(name = "userId")
     private User user;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "leaveTypeId")
+    private LeaveType leaveType;
+
     @Temporal(TemporalType.DATE) // Lưu trữ ngày [5, 12]
     private java.util.Date startDate;
 
@@ -36,6 +40,9 @@ public class LeaveRequest implements Serializable {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+
+    public LeaveType getLeaveType() { return leaveType; }
+    public void setLeaveType(LeaveType leaveType) { this.leaveType = leaveType; }
 
     public Date getStartDate() { return (Date) startDate; }
     public void setStartDate(Date startDate) { this.startDate = startDate; }
