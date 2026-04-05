@@ -20,12 +20,10 @@
 	<div style="display: flex; flex-wrap: wrap; gap: 24px; margin-top: 16px;">
 		<div style="flex: 1; min-width: 300px; max-width: 520px;">
 			<h4 style="margin-bottom: 8px;">Xu hướng nghỉ (8 tuần gần nhất)</h4>
-			<p style="font-size: 0.85rem; color: #555;">Đếm đơn có <em>ngày bắt đầu</em> rơi trong từng tuần (Thứ Hai–Chủ Nhật).</p>
 			<canvas id="dashTrendChart" height="220"></canvas>
 		</div>
 		<div style="flex: 1; min-width: 280px; max-width: 420px;">
 			<h4 style="margin-bottom: 8px;">Theo loại nghỉ (Leave type)</h4>
-			<p style="font-size: 0.85rem; color: #555;">Đếm theo <em>loại phép</em> cấu hình (phép năm, ốm, không lương, …) và mục Khác khi thiếu loại hoặc loại đã ngưng dùng.</p>
 			<canvas id="dashReasonChart" height="220"></canvas>
 		</div>
 	</div>
