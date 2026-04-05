@@ -9,6 +9,8 @@
 <body>
 	<h2>Super Admin Dashboard</h2>
 
+	<jsp:include page="/view/dashboard/summary-admin-manager.jsp" />
+
 	<hr>
 	<li>
 		<a href="${pageContext.request.contextPath}/my-profile">

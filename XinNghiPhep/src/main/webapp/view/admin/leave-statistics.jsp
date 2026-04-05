@@ -45,7 +45,7 @@
 		</c:forEach>
 	</table>
 
-	<h3>Leave Type Statistics</h3>
+	<h3>Leave type statistics (theo cấu hình Leave Types)</h3>
 	<table border="1" cellpadding="6" cellspacing="0">
 		<tr>
 			<th>Leave Type</th>
@@ -64,6 +64,7 @@
 		<tr>
 			<th>ID</th>
 			<th>Employee</th>
+			<th>Leave type</th>
 			<th>Start Date</th>
 			<th>End Date</th>
 			<th>Reason</th>
@@ -73,6 +74,14 @@
 			<tr>
 				<td>${leaveRequest.id}</td>
 				<td>${leaveRequest.user.fullName}</td>
+				<td>
+					<c:choose>
+						<c:when test="${leaveRequest.leaveType != null}">
+							<c:out value="${leaveRequest.leaveType.name}" />
+						</c:when>
+						<c:otherwise>—</c:otherwise>
+					</c:choose>
+				</td>
 				<td>${leaveRequest.startDate}</td>
 				<td>${leaveRequest.endDate}</td>
 				<td>${leaveRequest.reason}</td>
@@ -81,7 +90,7 @@
 		</c:forEach>
 		<c:if test="${empty filteredLeaveRequests}">
 			<tr>
-				<td colspan="6">No leave requests found.</td>
+				<td colspan="7">No leave requests found.</td>
 			</tr>
 		</c:if>
 	</table>
