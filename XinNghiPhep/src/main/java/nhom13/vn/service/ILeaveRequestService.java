@@ -44,7 +44,8 @@ public interface ILeaveRequestService {
             String reason, Integer leaveTypeId);
 
     /**
-     * Approved leave overlapping the inclusive date range, scoped by viewer role (admin: all; manager/employee: same company, employees only).
+     * Approved leave overlapping the inclusive date range, scoped by viewer role 
+     * (admin: all; manager/employee: same company, employees only).
      */
     List<LeaveRequest> findApprovedLeavesOverlapping(User viewer, LocalDate from, LocalDate to);
 }
