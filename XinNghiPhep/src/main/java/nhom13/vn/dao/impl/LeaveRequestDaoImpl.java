@@ -586,6 +586,40 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
         return (int) (ChronoUnit.DAYS.between(startDate, endDate) + 1);
     }
 
+    @Override
+    public List<LeaveRequest> findApprovedOverlapping(LocalDate rangeStart, LocalDate rangeEnd, Integer companyId,
+            boolean onlyEmployees) {
+        if (rangeStart == null || rangeEnd == null || rangeEnd.isBefore(rangeStart)) {
+            return List.of();
+        }
+
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            java.sql.Date sqlStart = java.sql.Date.valueOf(rangeStart);
+            java.sql.Date sqlEnd = java.sql.Date.valueOf(rangeEnd);
+
+            String jpql = "SELECT lr FROM LeaveRequest lr JOIN lr.user u WHERE lr.status = 'APPROVED' AND u.status = 1"
+                    + " AND lr.startDate <= :rangeEnd AND lr.endDate >= :rangeStart";
+            if (onlyEmployees) {
+                jpql += " AND u.role = 'EMPLOYEE'";
+            }
+            if (companyId != null) {
+                jpql += " AND u.company.id = :companyId";
+            }
+            jpql += " ORDER BY lr.startDate ASC, lr.id ASC";
+
+            TypedQuery<LeaveRequest> q = em.createQuery(jpql, LeaveRequest.class);
+            q.setParameter("rangeStart", sqlStart);
+            q.setParameter("rangeEnd", sqlEnd);
+            if (companyId != null) {
+                q.setParameter("companyId", companyId);
+            }
+            return q.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public static LeaveRequestDaoImpl getInstance() {
         if (instance == null) {
             instance = new LeaveRequestDaoImpl();

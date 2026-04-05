@@ -1,6 +1,7 @@
 package nhom13.vn.dao;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import nhom13.vn.entity.LeaveRequest;
@@ -58,4 +59,11 @@ public interface ILeaveRequestDao {
      * Re-validates remaining leave balance against the new date range inside the transaction.
      */
     boolean updatePendingForUser(int leaveId, int userId, Date startDate, Date endDate, String reason);
+
+    /**
+     * Approved requests whose date range overlaps [{@code rangeStart}, {@code rangeEnd}] (inclusive).
+     * When {@code companyId} is null, all companies; when {@code onlyEmployees} is true, only users with role EMPLOYEE.
+     */
+    List<LeaveRequest> findApprovedOverlapping(LocalDate rangeStart, LocalDate rangeEnd, Integer companyId,
+            boolean onlyEmployees);
 }

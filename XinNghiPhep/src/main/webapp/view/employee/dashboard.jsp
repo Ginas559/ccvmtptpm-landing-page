@@ -1,4 +1,4 @@
-<-- view/employee/dashboard.jsp -->
+<%-- view/employee/dashboard.jsp --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -6,10 +6,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Employee Dashboard</title>
 </head>
 <body>
 	<h2>Employee Dashboard</h2>
+
+	<jsp:include page="/view/dashboard/summary-employee.jsp" />
 
 	<hr>
 	<li><a href="${pageContext.request.contextPath}/my-profile">

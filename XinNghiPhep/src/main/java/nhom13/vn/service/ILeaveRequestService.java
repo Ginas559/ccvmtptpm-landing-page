@@ -42,4 +42,9 @@ public interface ILeaveRequestService {
      */
     boolean updatePendingForEmployee(int leaveId, User employee, LocalDate startDate, LocalDate endDate,
             String reason);
+
+    /**
+     * Approved leave overlapping the inclusive date range, scoped by viewer role (admin: all; manager/employee: same company, employees only).
+     */
+    List<LeaveRequest> findApprovedLeavesOverlapping(User viewer, LocalDate from, LocalDate to);
 }
