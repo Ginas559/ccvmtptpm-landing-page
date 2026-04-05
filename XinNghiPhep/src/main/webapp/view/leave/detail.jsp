@@ -34,6 +34,17 @@
 				<td>${leaveRequest.user.fullName}</td>
 			</tr>
 			<tr>
+				<th>Leave type</th>
+				<td>
+					<c:choose>
+						<c:when test="${leaveRequest.leaveType != null}">
+							<c:out value="${leaveRequest.leaveType.name}" /> (<c:out value="${leaveRequest.leaveType.code}" />)
+						</c:when>
+						<c:otherwise>— (legacy)</c:otherwise>
+					</c:choose>
+				</td>
+			</tr>
+			<tr>
 				<th>Start date</th>
 				<td>${leaveRequest.startDate}</td>
 			</tr>

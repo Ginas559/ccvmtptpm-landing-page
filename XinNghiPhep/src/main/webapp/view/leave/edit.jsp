@@ -30,6 +30,17 @@
 			action="${pageContext.request.contextPath}/leave/update">
 			<input type="hidden" name="id" value="${leaveRequest.id}" />
 
+			Leave type:
+			<select name="leaveTypeId" required>
+				<c:forEach var="t" items="${leaveTypes}">
+					<option value="${t.id}"
+						<c:if test="${leaveRequest.leaveType != null && leaveRequest.leaveType.id == t.id}">selected="selected"</c:if>>
+						<c:out value="${t.name}" /> (${t.code})
+					</option>
+				</c:forEach>
+			</select>
+			<br /><br />
+
 			Start Date:
 			<input type="date" name="startDate" value="${startIso}" />
 			<br /><br />

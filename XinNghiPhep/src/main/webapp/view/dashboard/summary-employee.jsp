@@ -51,7 +51,7 @@
 			<h4 style="margin-top: 0;">Đơn gần đây</h4>
 			<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%;">
 				<tr style="background: #eee;">
-					<th>Loại (nhóm lý do)</th>
+					<th>Loại nghỉ</th>
 					<th>Thời gian</th>
 					<th>Số ngày</th>
 					<th>Trạng thái</th>

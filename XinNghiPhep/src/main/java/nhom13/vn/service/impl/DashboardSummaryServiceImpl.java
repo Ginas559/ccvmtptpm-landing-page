@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -20,12 +19,13 @@ import nhom13.vn.entity.User;
 import nhom13.vn.service.IDashboardSummaryService;
 import nhom13.vn.service.ILeaveBalanceService;
 import nhom13.vn.service.ILeaveRequestService;
+import nhom13.vn.service.ILeaveTypeService;
 import nhom13.vn.service.INotificationService;
+import nhom13.vn.util.LeaveTypeDistributionUtil;
 
 public class DashboardSummaryServiceImpl implements IDashboardSummaryService {
 
     private static final int TREND_WEEKS = 8;
-    private static final int REASON_CHART_MAX = 8;
     private static final int NOTIFICATION_PREVIEW = 8;
     private static final int RECENT_REQUESTS = 10;
 
@@ -36,11 +36,13 @@ public class DashboardSummaryServiceImpl implements IDashboardSummaryService {
     private final ILeaveRequestService leaveRequestService;
     private final INotificationService notificationService;
     private final ILeaveBalanceService leaveBalanceService;
+    private final ILeaveTypeService leaveTypeService;
 
     private DashboardSummaryServiceImpl() {
         this.leaveRequestService = LeaveRequestServiceImpl.getInstance();
         this.notificationService = NotificationServiceImpl.getInstance();
         this.leaveBalanceService = LeaveBalanceServiceImpl.getInstance();
+        this.leaveTypeService = LeaveTypeServiceImpl.getInstance();
     }
 
     public static DashboardSummaryServiceImpl getInstance() {
@@ -94,17 +96,9 @@ public class DashboardSummaryServiceImpl implements IDashboardSummaryService {
             m.put("chartTrendLabels", trendLabels);
             m.put("chartTrendData", trendData);
 
-            Map<String, Integer> reasonAgg = new LinkedHashMap<>();
-            for (LeaveRequest lr : all) {
-                String cat = classifyReason(lr.getReason());
-                reasonAgg.merge(cat, 1, Integer::sum);
-            }
-            List<Map.Entry<String, Integer>> sortedReason = reasonAgg.entrySet().stream()
-                    .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                    .limit(REASON_CHART_MAX)
-                    .collect(Collectors.toList());
-            m.put("chartReasonLabels", sortedReason.stream().map(Map.Entry::getKey).collect(Collectors.toList()));
-            m.put("chartReasonData", sortedReason.stream().map(Map.Entry::getValue).collect(Collectors.toList()));
+            LinkedHashMap<String, Integer> byType = LeaveTypeDistributionUtil.distribution(all, leaveTypeService);
+            m.put("chartReasonLabels", new ArrayList<>(byType.keySet()));
+            m.put("chartReasonData", new ArrayList<>(byType.values()));
 
             LocalDate weekStart = today.with(DayOfWeek.MONDAY);
             LocalDate weekEnd = weekStart.plusDays(6);
@@ -190,7 +184,7 @@ public class DashboardSummaryServiceImpl implements IDashboardSummaryService {
             List<Map<String, Object>> rows = new ArrayList<>();
             for (LeaveRequest lr : recentSorted) {
                 Map<String, Object> row = new LinkedHashMap<>();
-                row.put("type", classifyReason(lr.getReason()));
+                row.put("type", LeaveTypeDistributionUtil.displayName(lr.getLeaveType()));
                 row.put("period", formatPeriod(lr));
                 row.put("duration", calculateInclusiveDays(lr));
                 row.put("status", lr.getStatus() != null ? lr.getStatus() : "—");
@@ -256,28 +250,6 @@ public class DashboardSummaryServiceImpl implements IDashboardSummaryService {
             return ((java.sql.Date) date).toLocalDate();
         }
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-    }
-
-    /**
-     * Mirrors admin leave-statistics classification for consistent "leave type" labels.
-     */
-    private static String classifyReason(String reason) {
-        if (reason == null || reason.isBlank()) {
-            return "Khác";
-        }
-        String r = reason.toLowerCase(Locale.ROOT);
-        if (r.contains("om") || r.contains("ốm") || r.contains("benh") || r.contains("bệnh")
-                || r.contains("kham") || r.contains("khám") || r.contains("sick") || r.contains("health")) {
-            return "Nghỉ ốm";
-        }
-        if (r.contains("gia dinh") || r.contains("gia đình") || r.contains("family")) {
-            return "Nghỉ gia đình";
-        }
-        if (r.contains("ca nhan") || r.contains("cá nhân") || r.contains("viec rieng")
-                || r.contains("việc riêng") || r.contains("personal")) {
-            return "Nghỉ cá nhân";
-        }
-        return "Khác";
     }
 
     private void putEmptyAdminManager(Map<String, Object> m) {

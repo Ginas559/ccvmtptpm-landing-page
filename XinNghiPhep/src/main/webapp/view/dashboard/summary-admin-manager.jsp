@@ -24,8 +24,8 @@
 			<canvas id="dashTrendChart" height="220"></canvas>
 		</div>
 		<div style="flex: 1; min-width: 280px; max-width: 420px;">
-			<h4 style="margin-bottom: 8px;">Lý do nghỉ (nhóm)</h4>
-			<p style="font-size: 0.85rem; color: #555;">Phân loại theo nội dung lý do trong đơn.</p>
+			<h4 style="margin-bottom: 8px;">Theo loại nghỉ (Leave type)</h4>
+			<p style="font-size: 0.85rem; color: #555;">Đếm theo <em>loại phép</em> cấu hình (phép năm, ốm, không lương, …) và mục Khác khi thiếu loại hoặc loại đã ngưng dùng.</p>
 			<canvas id="dashReasonChart" height="220"></canvas>
 		</div>
 	</div>
@@ -131,13 +131,15 @@
 		if (reasonLabels.length === 0) {
 			reasonCtx.parentElement.appendChild(document.createElement('p')).textContent = 'Chưa có dữ liệu để vẽ biểu đồ.';
 		} else {
+			const palette = ['#3498db', '#9b59b6', '#1abc9c', '#e67e22', '#e74c3c', '#95a5a6', '#34495e', '#2ecc71',
+				'#16a085', '#8e44ad', '#f39c12', '#d35400', '#2980b9', '#c0392b'];
 			new Chart(reasonCtx, {
 				type: 'doughnut',
 				data: {
 					labels: reasonLabels,
 					datasets: [{
 						data: reasonData,
-						backgroundColor: ['#3498db', '#9b59b6', '#1abc9c', '#e67e22', '#e74c3c', '#95a5a6', '#34495e', '#2ecc71']
+						backgroundColor: reasonLabels.map(function (_, i) { return palette[i % palette.length]; })
 					}]
 				},
 				options: { responsive: true, plugins: { legend: { position: 'bottom' } } }

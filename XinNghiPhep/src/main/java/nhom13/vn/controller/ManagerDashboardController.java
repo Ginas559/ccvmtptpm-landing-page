@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import nhom13.vn.entity.User;
 import nhom13.vn.service.IDashboardSummaryService;
 import nhom13.vn.service.impl.DashboardSummaryServiceImpl;
+import nhom13.vn.util.HttpCacheUtil;
 
 @WebServlet("/manager/dashboard")
 public class ManagerDashboardController extends HttpServlet {
@@ -19,6 +20,8 @@ public class ManagerDashboardController extends HttpServlet {
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+
+        HttpCacheUtil.disableCaching(resp);
 
         User user = (User) req.getSession().getAttribute("account");
         if (user != null) {

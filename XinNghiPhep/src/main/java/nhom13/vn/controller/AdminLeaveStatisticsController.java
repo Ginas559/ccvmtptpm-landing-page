@@ -6,7 +6,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import nhom13.vn.entity.LeaveRequest;
 import nhom13.vn.entity.User;
 import nhom13.vn.service.ILeaveRequestService;
+import nhom13.vn.service.ILeaveTypeService;
 import nhom13.vn.service.impl.LeaveRequestServiceImpl;
+import nhom13.vn.service.impl.LeaveTypeServiceImpl;
+import nhom13.vn.util.HttpCacheUtil;
+import nhom13.vn.util.LeaveTypeDistributionUtil;
 
 @WebServlet("/admin/leave-statistics")
 public class AdminLeaveStatisticsController extends HttpServlet {
@@ -26,6 +29,7 @@ public class AdminLeaveStatisticsController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private final ILeaveRequestService leaveRequestService = LeaveRequestServiceImpl.getInstance();
+    private final ILeaveTypeService leaveTypeService = LeaveTypeServiceImpl.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -41,6 +45,8 @@ public class AdminLeaveStatisticsController extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN, "You are not allowed to view leave statistics");
             return;
         }
+
+        HttpCacheUtil.disableCaching(resp);
 
         LocalDate fromDate = parseDate(req.getParameter("fromDate"));
         LocalDate toDate = parseDate(req.getParameter("toDate"));
@@ -63,7 +69,7 @@ public class AdminLeaveStatisticsController extends HttpServlet {
         req.setAttribute("selectedToDate", req.getParameter("toDate"));
         req.setAttribute("totalRequests", filteredRequests.size());
         req.setAttribute("statusCounts", buildStatusCounts(filteredRequests));
-        req.setAttribute("leaveTypeCounts", buildLeaveTypeCounts(filteredRequests));
+        req.setAttribute("leaveTypeCounts", LeaveTypeDistributionUtil.distribution(filteredRequests, leaveTypeService));
         req.setAttribute("filteredLeaveRequests", filteredRequests);
 
         req.getRequestDispatcher("/view/admin/leave-statistics.jsp").forward(req, resp);
@@ -126,53 +132,4 @@ public class AdminLeaveStatisticsController extends HttpServlet {
         return counts;
     }
 
-    private Map<String, Integer> buildLeaveTypeCounts(List<LeaveRequest> leaveRequests) {
-        Map<String, Integer> counts = new LinkedHashMap<>();
-        counts.put("Sick Leave", 0);
-        counts.put("Personal Leave", 0);
-        counts.put("Family Leave", 0);
-        counts.put("Other", 0);
-
-        for (LeaveRequest leaveRequest : leaveRequests) {
-            String leaveType = classifyLeaveType(leaveRequest.getReason());
-            counts.put(leaveType, counts.get(leaveType) + 1);
-        }
-
-        return counts;
-    }
-
-    private String classifyLeaveType(String reason) {
-        if (reason == null) {
-            return "Other";
-        }
-
-        String normalizedReason = reason.toLowerCase(Locale.ROOT);
-
-        if (normalizedReason.contains("om")
-                || normalizedReason.contains("ốm")
-                || normalizedReason.contains("benh")
-                || normalizedReason.contains("bệnh")
-                || normalizedReason.contains("kham")
-                || normalizedReason.contains("khám")
-                || normalizedReason.contains("sick")
-                || normalizedReason.contains("health")) {
-            return "Sick Leave";
-        }
-
-        if (normalizedReason.contains("gia dinh")
-                || normalizedReason.contains("gia đình")
-                || normalizedReason.contains("family")) {
-            return "Family Leave";
-        }
-
-        if (normalizedReason.contains("ca nhan")
-                || normalizedReason.contains("cá nhân")
-                || normalizedReason.contains("viec rieng")
-                || normalizedReason.contains("việc riêng")
-                || normalizedReason.contains("personal")) {
-            return "Personal Leave";
-        }
-
-        return "Other";
-    }
 }

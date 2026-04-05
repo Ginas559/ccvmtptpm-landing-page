@@ -11,11 +11,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import nhom13.vn.entity.LeaveBalance;
 import nhom13.vn.entity.LeaveRequest;
+import nhom13.vn.entity.LeaveType;
 import nhom13.vn.entity.User;
 import nhom13.vn.service.ILeaveBalanceService;
 import nhom13.vn.service.ILeaveRequestService;
+import nhom13.vn.service.ILeaveTypeService;
 import nhom13.vn.service.impl.LeaveBalanceServiceImpl;
 import nhom13.vn.service.impl.LeaveRequestServiceImpl;
+import nhom13.vn.service.impl.LeaveTypeServiceImpl;
 
 @WebServlet({ "/leave/edit", "/leave/update" })
 public class LeaveRequestEditController extends HttpServlet {
@@ -24,6 +27,7 @@ public class LeaveRequestEditController extends HttpServlet {
 
     private final ILeaveRequestService leaveRequestService = LeaveRequestServiceImpl.getInstance();
     private final ILeaveBalanceService leaveBalanceService = LeaveBalanceServiceImpl.getInstance();
+    private final ILeaveTypeService leaveTypeService = LeaveTypeServiceImpl.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -58,9 +62,12 @@ public class LeaveRequestEditController extends HttpServlet {
             return;
         }
 
+        leaveTypeService.ensureSystemDefaults();
+
         LeaveBalance leaveBalance = leaveBalanceService.ensureDefaultForUser(user);
         req.setAttribute("leaveRequest", leaveRequest);
         req.setAttribute("leaveBalance", leaveBalance);
+        req.setAttribute("leaveTypes", leaveTypeService.findAllActive());
         req.getRequestDispatcher("/view/leave/edit.jsp").forward(req, resp);
     }
 
@@ -102,10 +109,14 @@ public class LeaveRequestEditController extends HttpServlet {
         String start = req.getParameter("startDate");
         String end = req.getParameter("endDate");
         String reason = req.getParameter("reason");
+        Integer leaveTypeId = parseOptionalLeaveTypeId(req.getParameter("leaveTypeId"));
+
+        leaveTypeService.ensureSystemDefaults();
 
         LeaveBalance leaveBalance = leaveBalanceService.ensureDefaultForUser(user);
         req.setAttribute("leaveRequest", leaveRequest);
         req.setAttribute("leaveBalance", leaveBalance);
+        req.setAttribute("leaveTypes", leaveTypeService.findAllActive());
 
         if (start == null || end == null || reason == null
                 || start.isEmpty() || end.isEmpty() || reason.isEmpty()) {
@@ -137,13 +148,22 @@ public class LeaveRequestEditController extends HttpServlet {
                 return;
             }
 
-            if (requestedDays > leaveBalance.getRemainingDays()) {
+            LeaveType effectiveType = resolveEffectiveLeaveType(leaveRequest, leaveTypeId);
+            if (leaveTypeId != null && (effectiveType == null || !effectiveType.isActive())) {
+                req.setAttribute("alert", "Loại nghỉ không hợp lệ.");
+                req.getRequestDispatcher("/view/leave/edit.jsp").forward(req, resp);
+                return;
+            }
+
+            boolean consumesBalance = effectiveType == null || effectiveType.isConsumesBalance();
+            if (consumesBalance && requestedDays > leaveBalance.getRemainingDays()) {
                 req.setAttribute("alert", "So ngay nghi vuot qua so ngay con lai.");
                 req.getRequestDispatcher("/view/leave/edit.jsp").forward(req, resp);
                 return;
             }
 
-            boolean ok = leaveRequestService.updatePendingForEmployee(leaveId, user, startDate, endDate, reason);
+            boolean ok = leaveRequestService.updatePendingForEmployee(leaveId, user, startDate, endDate, reason,
+                    leaveTypeId);
             if (ok) {
                 req.getSession().setAttribute("message", "Cập nhật đơn nghỉ thành công!");
                 resp.sendRedirect(req.getContextPath() + "/leave/detail?id=" + leaveId);
@@ -156,6 +176,25 @@ public class LeaveRequestEditController extends HttpServlet {
             req.setAttribute("alert", "Lỗi dữ liệu!");
             req.getRequestDispatcher("/view/leave/edit.jsp").forward(req, resp);
         }
+    }
+
+    private static Integer parseOptionalLeaveTypeId(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            int id = Integer.parseInt(raw.trim());
+            return id > 0 ? id : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private LeaveType resolveEffectiveLeaveType(LeaveRequest leaveRequest, Integer leaveTypeId) {
+        if (leaveTypeId != null) {
+            return leaveTypeService.findById(leaveTypeId);
+        }
+        return leaveRequest.getLeaveType();
     }
 
     private static int parseLeaveId(String idRaw) {
