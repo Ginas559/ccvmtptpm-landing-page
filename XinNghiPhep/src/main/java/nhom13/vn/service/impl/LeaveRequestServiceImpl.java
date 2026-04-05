@@ -219,6 +219,27 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         return List.of();
     }
 
+    @Override
+    public List<LeaveRequest> findApprovedLeavesOverlapping(User viewer, LocalDate from, LocalDate to) {
+        if (viewer == null || from == null || to == null) {
+            return List.of();
+        }
+
+        String role = viewer.getRole();
+        if ("SUPER_ADMIN".equals(role)) {
+            return dao.findApprovedOverlapping(from, to, null, false);
+        }
+
+        if ("MANAGER".equals(role) || "EMPLOYEE".equals(role)) {
+            if (viewer.getCompany() == null) {
+                return List.of();
+            }
+            return dao.findApprovedOverlapping(from, to, viewer.getCompany().getId(), true);
+        }
+
+        return List.of();
+    }
+
     private String normalizeStatus(String status) {
         if (status == null) {
             return null;
