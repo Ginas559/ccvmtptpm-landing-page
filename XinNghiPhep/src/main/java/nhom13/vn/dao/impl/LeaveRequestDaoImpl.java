@@ -17,11 +17,13 @@ import nhom13.vn.dao.ILeaveRequestDao;
 import nhom13.vn.entity.LeaveApproval;
 import nhom13.vn.entity.LeaveBalance;
 import nhom13.vn.entity.LeaveRequest;
+import nhom13.vn.entity.LeaveType;
 import nhom13.vn.entity.User;
+import nhom13.vn.utils.LeaveRequestBalanceUtil;
 
 public class LeaveRequestDaoImpl implements ILeaveRequestDao {
-	
-	private static final int DEFAULT_LEAVE_DAYS = 12;//thêm mới
+
+    private static final int FALLBACK_ANNUAL_DAYS = 12;
 
     private static LeaveRequestDaoImpl instance;
 
@@ -310,7 +312,7 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
 
     @Override
     public boolean updatePendingForUser(int leaveId, int userId, java.sql.Date startDate, java.sql.Date endDate,
-            String reason) {
+            String reason, Integer leaveTypeId) {
         EntityManager em = JPAConfig.getEntityManager();
         EntityTransaction trans = em.getTransaction();
 
@@ -333,6 +335,15 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
                 return false;
             }
 
+            if (leaveTypeId != null) {
+                LeaveType newType = em.find(LeaveType.class, leaveTypeId);
+                if (newType == null || !newType.isActive()) {
+                    trans.rollback();
+                    return false;
+                }
+                leaveRequest.setLeaveType(newType);
+            }
+
             LocalDate startLocal = startDate.toLocalDate();
             LocalDate endLocal = endDate.toLocalDate();
             if (endLocal.isBefore(startLocal)) {
@@ -345,41 +356,38 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
                 return false;
             }
 
-            LeaveBalance leaveBalance;
-            try {
-                leaveBalance = em.createQuery(
-                                "SELECT lb FROM LeaveBalance lb WHERE lb.user.id = :userId",
-                                LeaveBalance.class
-                        )
-                        .setParameter("userId", userId)
-                        .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-                        .getSingleResult();
-            } catch (NoResultException e) {
-                String role = leaveRequest.getUser().getRole();
-                if (!"EMPLOYEE".equals(role) && !"MANAGER".equals(role)) {
+            if (LeaveRequestBalanceUtil.consumesAnnualPool(leaveRequest)) {
+                LeaveBalance leaveBalance;
+                try {
+                    leaveBalance = em.createQuery(
+                                    "SELECT lb FROM LeaveBalance lb WHERE lb.user.id = :userId",
+                                    LeaveBalance.class
+                            )
+                            .setParameter("userId", userId)
+                            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                            .getSingleResult();
+                } catch (NoResultException e) {
+                    String role = leaveRequest.getUser().getRole();
+                    if (!"EMPLOYEE".equals(role) && !"MANAGER".equals(role)) {
+                        trans.rollback();
+                        return false;
+                    }
+
+                    int defaultDays = resolveAnnualDefaultDays(em);
+
+                    leaveBalance = new LeaveBalance();
+                    leaveBalance.setUser(leaveRequest.getUser());
+                    leaveBalance.setTotalDays(defaultDays);
+                    leaveBalance.setUsedDays(0);
+                    leaveBalance.setRemainingDays(defaultDays);
+                    leaveBalance.setLastResetYear(LocalDate.now().getYear());
+                    em.persist(leaveBalance);
+                }
+
+                if (leaveBalance.getRemainingDays() < requestedDays) {
                     trans.rollback();
                     return false;
                 }
-
-                leaveBalance = new LeaveBalance();
-                leaveBalance.setUser(leaveRequest.getUser());
-                //leaveBalance.setTotalDays(12);
-                
-                leaveBalance.setTotalDays(DEFAULT_LEAVE_DAYS);//thêm mới
-                
-                leaveBalance.setUsedDays(0);
-                //leaveBalance.setRemainingDays(12);
-                
-                leaveBalance.setRemainingDays(DEFAULT_LEAVE_DAYS);// thêm mới
-
-                
-                leaveBalance.setLastResetYear(LocalDate.now().getYear());
-                em.persist(leaveBalance);
-            }
-
-            if (leaveBalance.getRemainingDays() < requestedDays) {
-                trans.rollback();
-                return false;
             }
 
             leaveRequest.setStartDate(startDate);
@@ -421,6 +429,19 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
                 return false;
             }
 
+            int requestedDays = calculateRequestedDays(leaveRequest);
+            if (requestedDays <= 0) {
+                trans.rollback();
+                return false;
+            }
+
+            if (!LeaveRequestBalanceUtil.consumesAnnualPool(leaveRequest)) {
+                leaveRequest.setStatus("APPROVED");
+                upsertApproval(em, leaveRequest, reviewer, "APPROVED", note);
+                trans.commit();
+                return true;
+            }
+
             LeaveBalance leaveBalance;
             try {
                 leaveBalance = em.createQuery(
@@ -437,25 +458,18 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
                     return false;
                 }
 
+                int defaultDays = resolveAnnualDefaultDays(em);
+
                 leaveBalance = new LeaveBalance();
                 leaveBalance.setUser(leaveRequest.getUser());
-                //leaveBalance.setTotalDays(12);
-                
-                leaveBalance.setTotalDays(DEFAULT_LEAVE_DAYS);// thêm mới
-
-                
+                leaveBalance.setTotalDays(defaultDays);
                 leaveBalance.setUsedDays(0);
-                //leaveBalance.setRemainingDays(12);
-                
-                leaveBalance.setRemainingDays(DEFAULT_LEAVE_DAYS);// thêm mới
-
-                
+                leaveBalance.setRemainingDays(defaultDays);
                 leaveBalance.setLastResetYear(LocalDate.now().getYear());
                 em.persist(leaveBalance);
             }
 
-            int requestedDays = calculateRequestedDays(leaveRequest);
-            if (requestedDays <= 0 || leaveBalance.getRemainingDays() < requestedDays) {
+            if (leaveBalance.getRemainingDays() < requestedDays) {
                 trans.rollback();
                 return false;
             }
@@ -464,9 +478,7 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
             upsertApproval(em, leaveRequest, reviewer, "APPROVED", note);
             leaveBalance.setUsedDays(leaveBalance.getUsedDays() + requestedDays);
             leaveBalance.setRemainingDays(leaveBalance.getRemainingDays() - requestedDays);
-            
-            leaveBalance.setTotalDays(leaveBalance.getUsedDays() + leaveBalance.getRemainingDays());// thêm mới
-
+            leaveBalance.setTotalDays(leaveBalance.getUsedDays() + leaveBalance.getRemainingDays());
 
             trans.commit();
             return true;
@@ -584,6 +596,23 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
         }
 
         return (int) (ChronoUnit.DAYS.between(startDate, endDate) + 1);
+    }
+
+    private int resolveAnnualDefaultDays(EntityManager em) {
+        try {
+            LeaveType annual = em.createQuery(
+                            "SELECT t FROM LeaveType t WHERE t.code = :code",
+                            LeaveType.class
+                    )
+                    .setParameter("code", LeaveType.CODE_ANNUAL)
+                    .getSingleResult();
+            if (annual.getDefaultDaysPerYear() > 0) {
+                return annual.getDefaultDaysPerYear();
+            }
+        } catch (NoResultException ignored) {
+            // fall through
+        }
+        return FALLBACK_ANNUAL_DAYS;
     }
 
     public static LeaveRequestDaoImpl getInstance() {
