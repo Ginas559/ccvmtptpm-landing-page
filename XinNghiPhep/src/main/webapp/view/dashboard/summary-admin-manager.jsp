@@ -3,34 +3,46 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<section style="margin-bottom: 24px; padding: 12px; border: 1px solid #ccc; border-radius: 8px; background: #fafafa;">
-	<h3 style="margin-top: 0;">Tổng quan hệ thống</h3>
+<section class="summary-panel">
+	<h3>Tong quan he thong</h3>
 
 	<c:if test="${not empty dashSummaryError}">
-		<p style="color: red;">${dashSummaryError}</p>
+		<p class="text-danger">${dashSummaryError}</p>
 	</c:if>
 
-	<p style="font-size: 1.05rem;">
-		<strong>Tổng số đơn:</strong> ${summaryTotal}
-		&nbsp;|&nbsp; <strong>Chờ duyệt:</strong> ${summaryPending}
-		&nbsp;|&nbsp; <strong>Đã duyệt:</strong> ${summaryApproved}
-		&nbsp;|&nbsp; <strong>Từ chối:</strong> ${summaryRejected}
-	</p>
+	<div class="summary-metric-row">
+		<article class="metric-card">
+			<div class="metric-label">Tong so don</div>
+			<div class="metric-value">${summaryTotal}</div>
+		</article>
+		<article class="metric-card">
+			<div class="metric-label">Cho duyet</div>
+			<div class="metric-value">${summaryPending}</div>
+		</article>
+		<article class="metric-card">
+			<div class="metric-label">Da duyet</div>
+			<div class="metric-value">${summaryApproved}</div>
+		</article>
+		<article class="metric-card">
+			<div class="metric-label">Tu choi</div>
+			<div class="metric-value">${summaryRejected}</div>
+		</article>
+	</div>
 
-	<div style="display: flex; flex-wrap: wrap; gap: 24px; margin-top: 16px;">
-		<div style="flex: 1; min-width: 300px; max-width: 520px;">
-			<h4 style="margin-bottom: 8px;">Xu hướng nghỉ (8 tuần gần nhất)</h4>
+	<div class="chart-grid">
+		<div class="chart-card">
+			<h4>Xu huong nghi (8 tuan gan nhat)</h4>
 			<canvas id="dashTrendChart" height="220"></canvas>
 		</div>
-		<div style="flex: 1; min-width: 280px; max-width: 420px;">
-			<h4 style="margin-bottom: 8px;">Theo loại nghỉ (Leave type)</h4>
+		<div class="chart-card">
+			<h4>Theo loai nghi (Leave type)</h4>
 			<canvas id="dashReasonChart" height="220"></canvas>
 		</div>
 	</div>
 
-	<h4 style="margin-top: 24px;">Đang nghỉ trong tuần này (đã duyệt)</h4>
-	<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 900px;">
-		<tr style="background: #eee;">
+	<h4 style="margin-top: 20px;">Dang nghi trong tuan nay (da duyet)</h4>
+	<table class="table-shell">
+		<tr>
 			<th>Nhân sự</th>
 			<th>Từ</th>
 			<th>Đến</th>
@@ -59,14 +71,14 @@
 		</c:if>
 	</table>
 
-	<h4 style="margin-top: 20px;">Thông báo gần đây</h4>
-	<ul>
+	<h4 style="margin-top: 20px;">Thong bao gan day</h4>
+	<ul class="notice-list">
 		<c:forEach var="note" items="${notificationPreview}">
-			<li style="margin-bottom: 6px;">
+			<li>
 				<c:if test="${not note.read}"><strong>[Chưa đọc]</strong> </c:if>
 				<c:out value="${note.content}" />
 				<c:if test="${note.sentTime != null}">
-					<small style="color: #666;"> — <fmt:formatDate value="${note.sentTime}" pattern="yyyy-MM-dd HH:mm" /></small>
+					<small> — <fmt:formatDate value="${note.sentTime}" pattern="yyyy-MM-dd HH:mm" /></small>
 				</c:if>
 			</li>
 		</c:forEach>
@@ -74,7 +86,7 @@
 			<li>Không có thông báo.</li>
 		</c:if>
 	</ul>
-	<p><a href="${pageContext.request.contextPath}/notifications">Xem tất cả thông báo</a></p>
+	<p><a class="summary-link" href="${pageContext.request.contextPath}/notifications">Xem tat ca thong bao</a></p>
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -127,7 +139,7 @@
 	const reasonCtx = document.getElementById('dashReasonChart');
 	if (reasonCtx && typeof Chart !== 'undefined') {
 		if (reasonLabels.length === 0) {
-			reasonCtx.parentElement.appendChild(document.createElement('p')).textContent = 'Chưa có dữ liệu để vẽ biểu đồ.';
+			reasonCtx.parentElement.appendChild(document.createElement('p')).textContent = 'Chua co du lieu de ve bieu do.';
 		} else {
 			const palette = ['#3498db', '#9b59b6', '#1abc9c', '#e67e22', '#e74c3c', '#95a5a6', '#34495e', '#2ecc71',
 				'#16a085', '#8e44ad', '#f39c12', '#d35400', '#2980b9', '#c0392b'];

@@ -4,10 +4,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
     <meta charset="UTF-8">
     <title>Change Password</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
 
 <h2>Đổi mật khẩu</h2>
 
@@ -34,5 +36,6 @@
     <button type="submit">Update</button>
 </form>
 
+</main>
 </body>
 </html>

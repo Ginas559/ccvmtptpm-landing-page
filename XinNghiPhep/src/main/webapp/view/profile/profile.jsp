@@ -2,9 +2,11 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
     <title>Profile</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
 
 <h2>Profile</h2>
 
@@ -55,5 +57,6 @@
     </p>
 </c:if>
 
+</main>
 </body>
 </html>

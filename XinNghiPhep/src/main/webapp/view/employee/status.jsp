@@ -4,10 +4,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
 <meta charset="UTF-8">
 <title>Check Leave Status</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
     <h2>My Leave Status</h2>
 
     <p>
@@ -73,6 +75,7 @@
             </tr>
         </c:if>
     </table>
+</main>
 </body>
 </html>
 

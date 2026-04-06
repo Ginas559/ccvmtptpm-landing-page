@@ -5,10 +5,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
 <meta charset="UTF-8">
 <title>Edit Leave Request</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
 	<h2>Edit Leave Request</h2>
 
 	<p>
@@ -54,5 +56,6 @@
 			<button type="submit">Save</button>
 		</form>
 	</c:if>
+</main>
 </body>
 </html>

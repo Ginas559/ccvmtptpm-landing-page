@@ -5,10 +5,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
     <meta charset="UTF-8">
     <title>User List</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
 
 <h2>User List</h2>
 
@@ -52,5 +54,6 @@
 
 </table>
 
+</main>
 </body>
 </html>

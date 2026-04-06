@@ -42,6 +42,7 @@ public class AuthenticationFilter implements Filter {
                 || uri.contains("/signup")
                 || uri.contains("/forgot-password")
                 || uri.contains("/view")
+                || uri.contains("/assets")
                 || uri.contains("/css")
                 || uri.contains("/js")
                 || uri.contains("/tesst")) {
