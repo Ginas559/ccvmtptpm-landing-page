@@ -3,16 +3,21 @@ package nhom13.vn.service.impl;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
-import nhom13.vn.dao.impl.LeaveRequestDaoImpl;
-import nhom13.vn.service.ILeaveRequestService;
+
 import nhom13.vn.dao.ILeaveRequestDao;
+import nhom13.vn.dao.impl.LeaveRequestDaoImpl;
 import nhom13.vn.entity.LeaveRequest;
 import nhom13.vn.entity.User;
+import nhom13.vn.service.ILeaveRequestService;
+import nhom13.vn.service.INotificationService;
+import nhom13.vn.service.IUserService;
 //Singleton
 public class LeaveRequestServiceImpl implements ILeaveRequestService {
 
 	private static LeaveRequestServiceImpl instance;
     private ILeaveRequestDao dao;
+    private final INotificationService notificationService = NotificationServiceImpl.getInstance();
+    private final IUserService userService = new UserServiceImpl();
 
     public LeaveRequestServiceImpl() {
         dao = LeaveRequestDaoImpl.getInstance();
@@ -79,7 +84,7 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         }
 
         if ("MANAGER".equals(role)) {
-            return dao.findAllEmployeesByStatus(normalizedStatus);
+            return dao.findReviewableByManager(viewer.getId(), normalizedStatus);
         }
 
         if ("SUPER_ADMIN".equals(role)) {
@@ -130,11 +135,21 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         String role = viewer.getRole();
 
         if ("MANAGER".equals(role)) {
-            return dao.approvePendingForManager(leaveId, viewer, note);
+            boolean ok = dao.approvePendingForManager(leaveId, viewer, note);
+            if (ok) {
+                LeaveRequest lr = dao.findByIdWithUser(leaveId);
+                notificationService.notifyEmployeeAndSuperAdminsOnManagerDecision(viewer, lr, true, note);
+            }
+            return ok;
         }
 
         if ("SUPER_ADMIN".equals(role)) {
-            return dao.approvePendingForAdmin(leaveId, viewer, note);
+            boolean ok = dao.approvePendingForAdmin(leaveId, viewer, note);
+            if (ok) {
+                LeaveRequest lr = dao.findByIdWithUser(leaveId);
+                notificationService.notifyEmployeeAndSuperAdminsOnManagerDecision(viewer, lr, true, note);
+            }
+            return ok;
         }
 
         return false;
@@ -154,11 +169,21 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         String role = viewer.getRole();
 
         if ("MANAGER".equals(role)) {
-            return dao.rejectPendingForManager(leaveId, viewer, note);
+            boolean ok = dao.rejectPendingForManager(leaveId, viewer, note);
+            if (ok) {
+                LeaveRequest lr = dao.findByIdWithUser(leaveId);
+                notificationService.notifyEmployeeAndSuperAdminsOnManagerDecision(viewer, lr, false, note);
+            }
+            return ok;
         }
 
         if ("SUPER_ADMIN".equals(role)) {
-            return dao.rejectPendingForAdmin(leaveId, viewer, note);
+            boolean ok = dao.rejectPendingForAdmin(leaveId, viewer, note);
+            if (ok) {
+                LeaveRequest lr = dao.findByIdWithUser(leaveId);
+                notificationService.notifyEmployeeAndSuperAdminsOnManagerDecision(viewer, lr, false, note);
+            }
+            return ok;
         }
 
         return false;
@@ -210,10 +235,19 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
         }
 
         if ("MANAGER".equals(role) || "EMPLOYEE".equals(role)) {
-            if (viewer.getCompany() == null) {
+            Integer companyId = null;
+            if (viewer.getCompany() != null && viewer.getCompany().getId() > 0) {
+                companyId = viewer.getCompany().getId();
+            } else {
+                User dbUser = userService.findById(viewer.getId());
+                if (dbUser != null && dbUser.getCompany() != null && dbUser.getCompany().getId() > 0) {
+                    companyId = dbUser.getCompany().getId();
+                }
+            }
+            if (companyId == null) {
                 return List.of();
             }
-            return dao.findApprovedOverlapping(from, to, viewer.getCompany().getId(), true);
+            return dao.findApprovedOverlapping(from, to, companyId, true);
         }
 
         return List.of();

@@ -18,9 +18,13 @@ public interface ILeaveRequestDao {
     List<LeaveRequest> findAll(); // 🔥 admin
     List<LeaveRequest> findAllByStatus(String status);
     LeaveRequest findById(int leaveId);
+
+    /** Loads {@link LeaveRequest} with {@code user} initialized (JOIN FETCH) for use after the persistence context closes. */
+    LeaveRequest findByIdWithUser(int leaveId);
     List<LeaveRequest> findPendingAll();
     List<LeaveRequest> findAllEmployees(); // 🔥 manager
     List<LeaveRequest> findAllEmployeesByStatus(String status);
+    List<LeaveRequest> findReviewableByManager(int managerId, String status);
     LeaveRequest findByIdForManager(int leaveId);
     List<LeaveRequest> findPendingEmployees();
     

@@ -164,6 +164,23 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     }
 
     @Override
+    public LeaveRequest findByIdWithUser(int leaveId) {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT lr FROM LeaveRequest lr JOIN FETCH lr.user WHERE lr.id = :id",
+                    LeaveRequest.class
+            )
+                    .setParameter("id", leaveId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public List<LeaveRequest> findPendingAll() {
         return findAllByStatus("PENDING");
     }
@@ -196,11 +213,35 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
     }
 
     @Override
+    public List<LeaveRequest> findReviewableByManager(int managerId, String status) {
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            String jpql = "SELECT lr, la.note FROM LeaveRequest lr "
+                    + "LEFT JOIN LeaveApproval la ON la.leaveRequest.id = lr.id "
+                    + "WHERE lr.user.role IN ('EMPLOYEE', 'MANAGER') "
+                    + "AND lr.user.id <> :managerId";
+            if (status != null && !status.isBlank()) {
+                jpql += " AND lr.status = :status";
+            }
+            jpql += " ORDER BY lr.startDate DESC";
+
+            TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class)
+                    .setParameter("managerId", managerId);
+            if (status != null && !status.isBlank()) {
+                query.setParameter("status", status);
+            }
+            return mapLeaveRequestsWithReviewComment(query.getResultList());
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public LeaveRequest findByIdForManager(int leaveId) {
         EntityManager em = JPAConfig.getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT lr FROM LeaveRequest lr WHERE lr.id = :id AND lr.user.role = 'EMPLOYEE'",
+                    "SELECT lr FROM LeaveRequest lr WHERE lr.id = :id AND lr.user.role IN ('EMPLOYEE', 'MANAGER')",
                     LeaveRequest.class
             )
             .setParameter("id", leaveId)
@@ -382,15 +423,21 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
             trans.begin();
             String jpql = "SELECT lr FROM LeaveRequest lr WHERE lr.id = :id AND lr.status = 'PENDING'";
             if (managerScopeOnlyEmployee) {
-                jpql += " AND lr.user.role = 'EMPLOYEE'";
+                jpql += " AND lr.user.role IN ('EMPLOYEE', 'MANAGER')";
+                if (reviewer != null && reviewer.getId() > 0) {
+                    jpql += " AND lr.user.id <> :reviewerId";
+                }
             }
 
             LeaveRequest leaveRequest;
             try {
-                leaveRequest = em.createQuery(jpql, LeaveRequest.class)
+                TypedQuery<LeaveRequest> query = em.createQuery(jpql, LeaveRequest.class)
                         .setParameter("id", leaveId)
-                        .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-                        .getSingleResult();
+                        .setLockMode(LockModeType.PESSIMISTIC_WRITE);
+                if (managerScopeOnlyEmployee && reviewer != null && reviewer.getId() > 0) {
+                    query.setParameter("reviewerId", reviewer.getId());
+                }
+                leaveRequest = query.getSingleResult();
             } catch (NoResultException e) {
                 trans.rollback();
                 return false;
@@ -457,14 +504,20 @@ public class LeaveRequestDaoImpl implements ILeaveRequestDao {
             trans.begin();
             String jpql = "SELECT lr FROM LeaveRequest lr WHERE lr.id = :id AND lr.status = 'PENDING'";
             if (managerScopeOnlyEmployee) {
-                jpql += " AND lr.user.role = 'EMPLOYEE'";
+                jpql += " AND lr.user.role IN ('EMPLOYEE', 'MANAGER')";
+                if (reviewer != null && reviewer.getId() > 0) {
+                    jpql += " AND lr.user.id <> :reviewerId";
+                }
             }
             LeaveRequest leaveRequest;
             try {
-                leaveRequest = em.createQuery(jpql, LeaveRequest.class)
+                TypedQuery<LeaveRequest> query = em.createQuery(jpql, LeaveRequest.class)
                         .setParameter("id", leaveId)
-                        .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-                        .getSingleResult();
+                        .setLockMode(LockModeType.PESSIMISTIC_WRITE);
+                if (managerScopeOnlyEmployee && reviewer != null && reviewer.getId() > 0) {
+                    query.setParameter("reviewerId", reviewer.getId());
+                }
+                leaveRequest = query.getSingleResult();
             } catch (NoResultException e) {
                 trans.rollback();
                 return false;
