@@ -154,6 +154,7 @@ public class LeaveRequestController extends HttpServlet {
 
             service.create(lr);
             notificationService.notifyManagersAboutSubmittedLeaveRequest(user, lr);
+            notificationService.notifySuperAdminsAboutSubmittedLeaveRequest(user, lr);
 
             HttpSession session = req.getSession();
 
