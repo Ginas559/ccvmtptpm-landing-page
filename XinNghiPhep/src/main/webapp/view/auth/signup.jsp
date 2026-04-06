@@ -3,10 +3,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
 <meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
-<body>
+<body class="auth-page">
+<main class="auth-card">
 	<form action="${pageContext.request.contextPath}/signup" method="post">
 
 		Username: <input type="text" name="username" required /> Email: <input
@@ -28,5 +30,6 @@
 	<c:if test="${errorMsg != null}">
 		<p style="color: red">${errorMsg}</p>
 	</c:if>
+</main>
 </body>
 </html>

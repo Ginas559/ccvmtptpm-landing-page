@@ -4,10 +4,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
 <meta charset="UTF-8">
 <title>Leave Request Detail</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
 	<h2>Leave Request Detail</h2>
 
 	<c:if test="${sessionScope.message != null}">
@@ -81,6 +83,7 @@
 			</form>
 		</c:if>
 	</c:if>
+</main>
 </body>
 </html>
 

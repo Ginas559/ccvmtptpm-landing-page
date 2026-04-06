@@ -3,10 +3,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
 <meta charset="UTF-8">
 <title>Leave Balance</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
     <h2>Leave Balance</h2>
     <c:if test="${not empty leaveBalance}">
         <table border="1">
@@ -27,5 +29,6 @@
     <p>
         <a href="${pageContext.request.contextPath}/leave/create">Create Leave Request</a>
     </p>
+</main>
 </body>
 </html>

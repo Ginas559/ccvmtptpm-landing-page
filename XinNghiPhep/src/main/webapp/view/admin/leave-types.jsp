@@ -3,10 +3,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
 <meta charset="UTF-8">
 <title>Manage Leave Types</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
 	<h2>Manage Leave Types</h2>
 
 	<c:if test="${not empty sessionScope.message}">
@@ -51,5 +53,6 @@
 			</tr>
 		</c:forEach>
 	</table>
+</main>
 </body>
 </html>

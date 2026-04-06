@@ -4,10 +4,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
 <meta charset="UTF-8">
 <title>Notifications</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
 	<h2>Notifications</h2>
 
 	<p><a href="${pageContext.request.contextPath}/${sessionScope.account.role == 'SUPER_ADMIN' ? 'admin' : (sessionScope.account.role == 'MANAGER' ? 'manager' : 'employee')}/dashboard">Back to dashboard</a></p>
@@ -55,5 +57,6 @@
 			</tr>
 		</c:if>
 	</table>
+</main>
 </body>
 </html>
