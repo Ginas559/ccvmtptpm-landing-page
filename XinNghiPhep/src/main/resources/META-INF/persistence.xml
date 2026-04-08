@@ -1,34 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <persistence version="3.0"
-	xmlns="https://jakarta.ee/xml/ns/persistence"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+    xmlns="https://jakarta.ee/xml/ns/persistence"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
     https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
 
-	<persistence-unit name="XinNghiPhepPU">
-		<properties>
-			<property name="jakarta.persistence.jdbc.url"
-				value="jdbc:sqlserver://localhost:1433;databaseName=XinNghiPhep;encrypt=true;trustServerCertificate=true" />
+    <persistence-unit name="XinNghiPhepPU">
+        <properties>
 
-			<property name="jakarta.persistence.jdbc.driver"
-				value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
+            <!-- JDBC URL (Azure SQL) -->
+            <property name="jakarta.persistence.jdbc.url"
+                value="jdbc:sqlserver://coolenglish-server-xyz.database.windows.net:1433;
+                database=XinNghiPhepDB;
+                user=sqladmin@coolenglish-server-xyz;
+                password=123456Aa@;
+                encrypt=true;
+                trustServerCertificate=false;
+                hostNameInCertificate=*.database.windows.net;
+                loginTimeout=30;" />
 
-			<property name="jakarta.persistence.jdbc.user" value="sa" />
+            <!-- Driver -->
+            <property name="jakarta.persistence.jdbc.driver"
+                value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
 
-			<property name="jakarta.persistence.jdbc.password"
-				value="123456" />
+            <!-- Hibernate -->
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="true" />
+            <property name="hibernate.hbm2ddl.auto" value="update" />
 
-			<property name="hibernate.show_sql" value="true" />
+            <!-- Dialect -->
+            <property name="hibernate.dialect"
+                value="org.hibernate.dialect.SQLServerDialect" />
 
-			<property name="hibernate.format_sql" value="true" />
-
-			<property name="hibernate.hbm2ddl.auto" value="update" />
-
-			<property name="hibernate.dialect"
-				value="org.hibernate.dialect.SQLServer2012Dialect" />
-		</properties>
-
-	</persistence-unit>
+        </properties>
+    </persistence-unit>
 
 </persistence>
