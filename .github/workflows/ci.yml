@@ -31,7 +31,6 @@ jobs:
         cd XinNghiPhep
         mvn -B test
 
-    # OPTIONAL: Lint (Checkstyle) - nếu có config trong pom.xml
     - name: 🔍 Checkstyle
       run: |
         cd XinNghiPhep
