@@ -13,7 +13,7 @@ import nhom13.vn.entity.User;
 import nhom13.vn.service.ILeaveRequestService;
 import nhom13.vn.service.impl.LeaveRequestServiceImpl;
 
-@WebServlet({"/employee/status", "/manager/status"})
+@WebServlet({"/employee/status", "/manager/status", "/admin/status"})
 public class EmployeeLeaveStatusController extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -31,16 +31,17 @@ public class EmployeeLeaveStatusController extends HttpServlet {
         }
 
         String role = user.getRole();
-        if (!"EMPLOYEE".equals(role) && !"MANAGER".equals(role)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Only employees and managers can check leave status");
+        if (!"EMPLOYEE".equals(role) && !"MANAGER".equals(role) && !"SUPER_ADMIN".equals(role)) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN,
+                    "Only employees, managers, and super admins can check leave status");
             return;
         }
 
         String selectedStatus = normalizeStatus(req.getParameter("status"));
         List<LeaveRequest> leaveRequests = leaveRequestService.getByUserWithReview(user.getId(), selectedStatus);
 
-        String statusPath = "EMPLOYEE".equals(role) ? "/employee/status" : "/manager/status";
-        String dashboardPath = "EMPLOYEE".equals(role) ? "/employee/dashboard" : "/manager/dashboard";
+        String statusPath = resolveStatusPath(role);
+        String dashboardPath = resolveDashboardPath(role);
 
         req.setAttribute("leaveList", leaveRequests);
         req.setAttribute("selectedStatus", selectedStatus == null ? "ALL" : selectedStatus);
@@ -68,6 +69,26 @@ public class EmployeeLeaveStatusController extends HttpServlet {
         }
 
         return normalized;
+    }
+
+    private static String resolveStatusPath(String role) {
+        if ("MANAGER".equals(role)) {
+            return "/manager/status";
+        }
+        if ("SUPER_ADMIN".equals(role)) {
+            return "/admin/status";
+        }
+        return "/employee/status";
+    }
+
+    private static String resolveDashboardPath(String role) {
+        if ("MANAGER".equals(role)) {
+            return "/manager/dashboard";
+        }
+        if ("SUPER_ADMIN".equals(role)) {
+            return "/admin/dashboard";
+        }
+        return "/employee/dashboard";
     }
 }
 

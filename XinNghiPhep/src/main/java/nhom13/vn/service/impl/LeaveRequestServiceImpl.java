@@ -195,7 +195,8 @@ public class LeaveRequestServiceImpl implements ILeaveRequestService {
             return false;
         }
 
-        if (!"EMPLOYEE".equals(viewer.getRole())) {
+        String role = viewer.getRole() == null ? "" : viewer.getRole().trim().toUpperCase();
+        if (!"EMPLOYEE".equals(role) && !"MANAGER".equals(role) && !"SUPER_ADMIN".equals(role)) {
             return false;
         }
 

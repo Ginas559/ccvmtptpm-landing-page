@@ -28,8 +28,9 @@ public class LeaveCancelController extends HttpServlet {
             return;
         }
 
-        if (!"EMPLOYEE".equals(user.getRole())) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Only employees can cancel leave requests");
+        if (!canCancelOwnLeave(user)) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN,
+                    "Only employees, managers, and super admins can cancel their own leave requests");
             return;
         }
 
@@ -46,11 +47,36 @@ public class LeaveCancelController extends HttpServlet {
         }
 
         boolean cancelled = service.cancelForViewer(leaveId, user);
+        String statusPath = resolveStatusPath(user);
         if (cancelled) {
-            resp.sendRedirect(req.getContextPath() + "/employee/status?msg=cancelled");
+            resp.sendRedirect(req.getContextPath() + statusPath + "?msg=cancelled");
             return;
         }
 
-        resp.sendRedirect(req.getContextPath() + "/employee/status?msg=notfound");
+        resp.sendRedirect(req.getContextPath() + statusPath + "?msg=notfound");
+    }
+
+    private static boolean canCancelOwnLeave(User user) {
+        if (user == null || user.getRole() == null) {
+            return false;
+        }
+
+        String role = user.getRole().trim().toUpperCase();
+        return "EMPLOYEE".equals(role) || "MANAGER".equals(role) || "SUPER_ADMIN".equals(role);
+    }
+
+    private static String resolveStatusPath(User user) {
+        if (user == null || user.getRole() == null) {
+            return "/employee/status";
+        }
+
+        String role = user.getRole().trim().toUpperCase();
+        if ("MANAGER".equals(role)) {
+            return "/manager/status";
+        }
+        if ("SUPER_ADMIN".equals(role)) {
+            return "/admin/status";
+        }
+        return "/employee/status";
     }
 }

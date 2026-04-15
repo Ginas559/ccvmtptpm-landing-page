@@ -24,6 +24,7 @@
 			</ul>
 			<p class="menu-section-title">Workspace</p>
 			<ul class="sidebar-menu">
+				<li><a href="${pageContext.request.contextPath}/admin/status">Leave Status</a></li>
 				<li><a href="${pageContext.request.contextPath}/leave/list">Leave Requests</a></li>
 				<li><a href="${pageContext.request.contextPath}/notifications">Notifications</a></li>
 				<li><a href="${pageContext.request.contextPath}/my-profile">My Profile</a></li>

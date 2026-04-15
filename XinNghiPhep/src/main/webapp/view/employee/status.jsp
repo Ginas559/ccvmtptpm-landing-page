@@ -62,6 +62,8 @@
                     <c:if test="${(sessionScope.account.role == 'EMPLOYEE' || sessionScope.account.role == 'MANAGER') && lr.status == 'PENDING'}">
                         <br />
                         <a href="${pageContext.request.contextPath}/leave/edit?id=${lr.id}">Edit</a>
+                    </c:if>
+                    <c:if test="${(sessionScope.account.role == 'EMPLOYEE' || sessionScope.account.role == 'MANAGER' || sessionScope.account.role == 'SUPER_ADMIN') && lr.status == 'PENDING'}">
                         <br />
                         <form method="post" action="${pageContext.request.contextPath}/leave/cancel" style="display:inline;">
                             <input type="hidden" name="id" value="${lr.id}" />
