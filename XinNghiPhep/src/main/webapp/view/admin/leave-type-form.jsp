@@ -8,6 +8,9 @@
 <title>Leave type</title>
 </head>
 <body class="app-page">
+<div class="session-actions">
+	<a class="chip-link logout-chip" href="${pageContext.request.contextPath}/logout">Dang xuat</a>
+</div>
 <main class="page-card">
 	<h2><c:choose><c:when test="${not empty leaveType}">Edit</c:when><c:otherwise>Add</c:otherwise></c:choose> leave type</h2>
 

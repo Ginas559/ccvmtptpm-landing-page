@@ -20,7 +20,7 @@
 			</ul>
 			<p class="menu-section-title">Team</p>
 			<ul class="sidebar-menu">
-				<li><a href="${pageContext.request.contextPath}/manager/zemployeez">View Employees</a></li>
+				<li><a href="${pageContext.request.contextPath}/manager/employees">View Employees</a></li>
 				<li><a href="${pageContext.request.contextPath}/manager/status">Leave Status</a></li>
 				<li><a href="${pageContext.request.contextPath}/manager/balance">Leave Balance</a></li>
 			</ul>
@@ -30,10 +30,14 @@
 				<li><a href="${pageContext.request.contextPath}/leave/list">Leave Requests</a></li>
 				<li><a href="${pageContext.request.contextPath}/notifications">Notifications</a></li>
 				<li><a href="${pageContext.request.contextPath}/my-profile">My Profile</a></li>
+				<li><a href="${pageContext.request.contextPath}/logout">Logout</a></li>
 			</ul>
 		</aside>
 
 		<main class="dashboard-main">
+			<div class="session-actions">
+				<a class="chip-link logout-chip" href="${pageContext.request.contextPath}/logout">Dang xuat</a>
+			</div>
 			<header class="topbar">
 				<h1>Manager Dashboard</h1>
 				<p>Theo doi tinh hinh nghi phep cua doi nhom va xu ly cong viec nhanh.</p>
@@ -43,7 +47,7 @@
 				<article class="quick-card">
 					<h3>Employee Directory</h3>
 					<p>Mo danh sach nhan su de cap nhat thong tin va kiem tra trang thai.</p>
-					<a href="${pageContext.request.contextPath}/manager/zemployeez">Mo danh sach</a>
+					<a href="${pageContext.request.contextPath}/manager/employees">Mo danh sach</a>
 				</article>
 				<article class="quick-card">
 					<h3>Request Leave</h3>

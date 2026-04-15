@@ -27,10 +27,14 @@
 				<li><a href="${pageContext.request.contextPath}/leave/list">Leave Requests</a></li>
 				<li><a href="${pageContext.request.contextPath}/notifications">Notifications</a></li>
 				<li><a href="${pageContext.request.contextPath}/my-profile">My Profile</a></li>
+				<li><a href="${pageContext.request.contextPath}/logout">Logout</a></li>
 			</ul>
 		</aside>
 
 		<main class="dashboard-main">
+			<div class="session-actions">
+				<a class="chip-link logout-chip" href="${pageContext.request.contextPath}/logout">Dang xuat</a>
+			</div>
 			<header class="topbar">
 				<h1>Super Admin Dashboard</h1>
 				<p>Quan sat he thong nghi phep va cac thao tac quan tri quan trong.</p>

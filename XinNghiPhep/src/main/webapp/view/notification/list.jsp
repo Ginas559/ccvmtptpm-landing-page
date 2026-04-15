@@ -9,6 +9,9 @@
 <title>Notifications</title>
 </head>
 <body class="app-page">
+<div class="session-actions">
+	<a class="chip-link logout-chip" href="${pageContext.request.contextPath}/logout">Dang xuat</a>
+</div>
 <main class="page-card">
 	<h2>Notifications</h2>
 

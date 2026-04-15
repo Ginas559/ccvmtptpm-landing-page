@@ -6,6 +6,9 @@
     <title>Profile</title>
 </head>
 <body class="app-page">
+<div class="session-actions">
+    <a class="chip-link logout-chip" href="${pageContext.request.contextPath}/logout">Dang xuat</a>
+</div>
 <main class="page-card">
 
 <h2>Profile</h2>
@@ -26,7 +29,7 @@
             <img src="${user.avatarUrl}" alt="Avatar" width="120" height="120" style="object-fit:cover;border-radius:50%;" />
         </c:when>
         <c:otherwise>
-            <img src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Avatar mac dinh" width="120" height="120" style="object-fit:cover;border-radius:50%;opacity:0.6;" />
+            <img src="${pageContext.request.contextPath}/assets/img/default-avatar.svg" alt="Avatar mac dinh" width="120" height="120" style="object-fit:cover;border-radius:50%;opacity:0.8;" />
         </c:otherwise>
     </c:choose>
     <br><br>

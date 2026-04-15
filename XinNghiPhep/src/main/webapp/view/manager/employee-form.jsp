@@ -1,4 +1,4 @@
-<-- view/mânger/employee-form.jsp -->
+<%-- view/manager/employee-form.jsp --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -10,12 +10,15 @@
     <title>Employee Form</title>
 </head>
 <body class="app-page">
+<div class="session-actions">
+    <a class="chip-link logout-chip" href="${pageContext.request.contextPath}/logout">Dang xuat</a>
+</div>
 <main class="page-card">
 
 <h2>Employee Form</h2>
 
 <form method="post"
-      action="${pageContext.request.contextPath}${user == null ? '/manager/zemployeez/insert' : '/manager/zemployeez/update'}">
+      action="${pageContext.request.contextPath}${user == null ? '/manager/employees/insert' : '/manager/employees/update'}">
 
     <c:if test="${user != null}">
         <input type="hidden" name="id" value="${user.id}" />

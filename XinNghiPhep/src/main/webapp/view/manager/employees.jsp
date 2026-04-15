@@ -1,4 +1,4 @@
-<-- view/mânger/employees.jsp -->
+<%-- view/manager/employees.jsp --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -10,11 +10,14 @@
     <title>Employee List</title>
 </head>
 <body class="app-page">
+<div class="session-actions">
+    <a class="chip-link logout-chip" href="${pageContext.request.contextPath}/logout">Dang xuat</a>
+</div>
 <main class="page-card">
 
 <h2>Employee List</h2>
 
-<a href="${pageContext.request.contextPath}/manager/zemployeez/add">
+<a href="${pageContext.request.contextPath}/manager/employees/add">
     Add Employee
 </a>
 
@@ -34,13 +37,13 @@
             <td>${u.fullName}</td>
             <td>${u.email}</td>
             <td>
-                <a href="${pageContext.request.contextPath}/manager/zemployeez/edit?id=${u.id}">
+                <a href="${pageContext.request.contextPath}/manager/employees/edit?id=${u.id}">
                     Edit
                 </a>
 
                 |
 
-                <a href="${pageContext.request.contextPath}/manager/zemployeez/delete?id=${u.id}"
+                <a href="${pageContext.request.contextPath}/manager/employees/delete?id=${u.id}"
                    onclick="return confirm('Delete?')">
                     Delete
                 </a>

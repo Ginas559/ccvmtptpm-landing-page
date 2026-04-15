@@ -1,4 +1,4 @@
-<-- view/admin/users.jsp -->
+<%-- view/admin/users.jsp --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -10,6 +10,9 @@
     <title>User List</title>
 </head>
 <body class="app-page">
+<div class="session-actions">
+    <a class="chip-link logout-chip" href="${pageContext.request.contextPath}/logout">Dang xuat</a>
+</div>
 <main class="page-card">
 
 <h2>User List</h2>

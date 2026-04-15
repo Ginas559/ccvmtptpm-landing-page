@@ -11,6 +11,12 @@ import nhom13.vn.entity.User;
 import nhom13.vn.service.IUserService;
 import nhom13.vn.service.impl.UserServiceImpl;
 @WebServlet({
+        "/manager/employees",
+        "/manager/employees/add",
+        "/manager/employees/insert",
+        "/manager/employees/edit",
+        "/manager/employees/update",
+        "/manager/employees/delete",
         "/manager/zemployeez",
         "/manager/zemployeez/add",
         "/manager/zemployeez/insert",
@@ -52,11 +58,11 @@ public class ManagerEmployeeController extends HttpServlet {
             user.setStatus(0);
             userService.update(user);
 
-            resp.sendRedirect(req.getContextPath() + "/manager/zemployeez");
+            resp.sendRedirect(req.getContextPath() + "/manager/employees");
         }
 
         // LIST (ĐỂ CUỐI)
-        else if (uri.contains("/manager/zemployeez")) {
+        else if (uri.contains("/manager/employees") || uri.contains("/manager/zemployeez")) {
             List<User> list = userService.findByRole("EMPLOYEE");
             req.setAttribute("list", list);
             req.getRequestDispatcher("/view/manager/employees.jsp")
@@ -88,7 +94,7 @@ public class ManagerEmployeeController extends HttpServlet {
 
             userService.insert(user); // ✅ đúng chuẩn
 
-            resp.sendRedirect(req.getContextPath() + "/manager/zemployeez");
+            resp.sendRedirect(req.getContextPath() + "/manager/employees");
         }
 
         // UPDATE
@@ -102,7 +108,7 @@ public class ManagerEmployeeController extends HttpServlet {
 
             userService.update(user);
 
-            resp.sendRedirect(req.getContextPath() + "/manager/zemployeez");
+            resp.sendRedirect(req.getContextPath() + "/manager/employees");
         }
     }
 }

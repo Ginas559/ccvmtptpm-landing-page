@@ -130,6 +130,7 @@
 			},
 			options: {
 				responsive: true,
+				maintainAspectRatio: false,
 				plugins: { legend: { display: false } },
 				scales: { x: { ticks: { maxRotation: 45, minRotation: 45 } } }
 			}
@@ -152,7 +153,11 @@
 						backgroundColor: reasonLabels.map(function (_, i) { return palette[i % palette.length]; })
 					}]
 				},
-				options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: { legend: { position: 'bottom' } }
+				}
 			});
 		}
 	}

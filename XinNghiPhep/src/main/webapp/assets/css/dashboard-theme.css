@@ -22,6 +22,7 @@ body.dashboard-page {
   font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
+  overflow-x: hidden;
 }
 
 body.app-page,
@@ -32,6 +33,7 @@ body.auth-page {
   color: var(--text);
   min-height: 100vh;
   padding: 24px;
+  overflow-x: hidden;
 }
 
 body.auth-page {
@@ -43,6 +45,7 @@ body.auth-page {
 .page-card,
 .auth-card {
   width: min(1080px, 100%);
+  max-width: 100%;
   margin: 0 auto;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -160,6 +163,9 @@ table td {
   border: 1px solid var(--border);
   padding: 8px 10px;
   text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 table th {
@@ -271,6 +277,7 @@ ol {
   border-radius: 10px;
   padding: 10px 12px;
   transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-wrap: anywhere;
 }
 
 .sidebar-menu a:hover {
@@ -330,6 +337,7 @@ ol {
   margin: 8px 0 12px;
   color: var(--text-soft);
   font-size: 0.9rem;
+  overflow-wrap: anywhere;
 }
 
 .quick-card a {
@@ -348,6 +356,7 @@ ol {
   border-radius: 16px;
   padding: 18px;
   box-shadow: var(--shadow);
+  overflow-x: auto;
 }
 
 .summary-panel h2,
@@ -396,6 +405,16 @@ ol {
   padding: 12px;
 }
 
+#dashTrendChart {
+  width: 100% !important;
+  height: clamp(220px, 30vh, 320px) !important;
+}
+
+#dashReasonChart {
+  width: 100% !important;
+  height: clamp(220px, 32vh, 340px) !important;
+}
+
 .table-shell {
   width: 100%;
   border-collapse: collapse;
@@ -409,6 +428,9 @@ ol {
   text-align: left;
   padding: 9px;
   vertical-align: top;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .table-shell th {
@@ -452,6 +474,62 @@ ol {
   font-weight: 600;
 }
 
+.session-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  width: min(1080px, 100%);
+  max-width: 100%;
+  margin: 0 auto 12px;
+}
+
+body.dashboard-page .session-actions {
+  width: auto;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.logout-chip {
+  border-color: var(--border);
+  background: #fff;
+  color: #334155;
+  font-weight: 600;
+}
+
+.logout-chip:hover {
+  border-color: #c7d2fe;
+  background: #eef2ff;
+  text-decoration: none;
+}
+
+.auth-title {
+  margin-bottom: 14px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 6px;
+}
+
+.form-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.form-help {
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  margin-top: -2px;
+}
+
+.auth-links {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 @media (max-width: 1024px) {
   .dashboard-shell {
     grid-template-columns: 1fr;
@@ -473,6 +551,10 @@ ol {
   .page-card,
   .auth-card {
     padding: 14px;
+  }
+
+  body.dashboard-page .session-actions {
+    margin-bottom: 10px;
   }
 }
 

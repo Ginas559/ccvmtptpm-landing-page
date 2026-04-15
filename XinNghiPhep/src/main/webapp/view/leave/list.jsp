@@ -10,6 +10,9 @@
 <title>Insert title here</title>
 </head>
 <body class="app-page">
+<div class="session-actions">
+	<a class="chip-link logout-chip" href="${pageContext.request.contextPath}/logout">Dang xuat</a>
+</div>
 <main class="page-card">
 	<h2>${empty pageTitle ? 'Leave Requests List' : pageTitle}</h2>
 	<c:if test="${sessionScope.account.role == 'MANAGER' || sessionScope.account.role == 'SUPER_ADMIN'}">
