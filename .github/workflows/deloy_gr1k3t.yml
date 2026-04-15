@@ -21,7 +21,6 @@ jobs:
           java-version: '21'
           distribution: 'microsoft'
 
-      # 🔥 QUAN TRỌNG: build đúng thư mục có pom.xml
       - name: Build with Maven
         working-directory: XinNghiPhep
         run: mvn clean package
