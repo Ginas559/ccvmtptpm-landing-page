@@ -1,6 +1,7 @@
 package nhom13.vn.controller;
 
 import jakarta.servlet.*;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
@@ -8,14 +9,20 @@ import java.io.IOException;
 
 import nhom13.vn.entity.User;
 import nhom13.vn.service.IUserService;
+import nhom13.vn.service.impl.CloudinaryImageService;
 import nhom13.vn.service.impl.UserServiceImpl;
 
 @WebServlet(urlPatterns = {"/my-profile", "/update-profile"})
-public class ProfileController  extends HttpServlet {
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 5 * 1024 * 1024,
+        maxRequestSize = 6 * 1024 * 1024
+)
+public class ProfileController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	IUserService userService = new UserServiceImpl();
 
-	//Hien thi profile
+	// Hien thi profile
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -48,13 +55,17 @@ public class ProfileController  extends HttpServlet {
                 .forward(req, resp);
     }
 
-	//Update profile
+	// Update profile
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.setCharacterEncoding("UTF-8");
 
 		HttpSession session = req.getSession();
 		User user = (User) session.getAttribute("account");
+		if (user == null) {
+			resp.sendRedirect(req.getContextPath() + "/login");
+			return;
+		}
 
 		String fullName = req.getParameter("fullName");
 		String email = req.getParameter("email");
@@ -62,11 +73,24 @@ public class ProfileController  extends HttpServlet {
 		user.setFullName(fullName);
 		user.setEmail(email);
 
+		Part avatarPart = req.getPart("avatar");
+		if (avatarPart != null && avatarPart.getSize() > 0) {
+			try {
+				String avatarUrl = new CloudinaryImageService().uploadProfileImage(avatarPart, user.getId());
+				user.setAvatarUrl(avatarUrl);
+      } catch (Exception e) {
+				req.setAttribute("error", e.getMessage());
+				req.setAttribute("user", user);
+				req.getRequestDispatcher("/view/profile/profile.jsp").forward(req, resp);
+				return;
+			}
+		}
+
 		userService.update(user);
 
 		session.setAttribute("account", user);
 
-		resp.sendRedirect(req.getContextPath() + "/my-profile?seccess=1");
+		resp.sendRedirect(req.getContextPath() + "/my-profile?success=1");
 	}
 
     private boolean isAllowed(User currentUser, User targetUser) {

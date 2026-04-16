@@ -1,7 +1,6 @@
 package nhom13.vn.entity;
 
 import java.io.Serializable;
-import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
@@ -27,5 +26,54 @@ public class LeaveApproval implements Serializable {
     @Column(columnDefinition = "nvarchar(500)")
     private String note;
 
-    // Constructors, Getters, Setters
+    public LeaveApproval() {
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public LeaveRequest getLeaveRequest() {
+        return leaveRequest;
+    }
+
+    public void setLeaveRequest(LeaveRequest leaveRequest) {
+        this.leaveRequest = leaveRequest;
+    }
+
+    public User getManager() {
+        return manager;
+    }
+
+    public void setManager(User manager) {
+        this.manager = manager;
+    }
+
+    public String getDecision() {
+        return decision;
+    }
+
+    public void setDecision(String decision) {
+        this.decision = decision;
+    }
+
+    public java.util.Date getApprovalTime() {
+        return approvalTime;
+    }
+
+    public void setApprovalTime(java.util.Date approvalTime) {
+        this.approvalTime = approvalTime;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
 }

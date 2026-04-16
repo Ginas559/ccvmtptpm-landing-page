@@ -4,11 +4,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
 <meta charset="UTF-8">
 <title>Leave Request Detail</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
 	<h2>Leave Request Detail</h2>
+
+	<c:if test="${sessionScope.message != null}">
+		<p style="color: green;">${sessionScope.message}</p>
+		<c:remove var="message" scope="session" />
+	</c:if>
+	<c:if test="${param.msg == 'cannotedit'}">
+		<p style="color: red;">Chỉ được sửa đơn khi trạng thái là PENDING.</p>
+	</c:if>
 
 	<p>
 		<a href="${pageContext.request.contextPath}/leave/list">Back to all</a> |
@@ -24,6 +34,17 @@
 			<tr>
 				<th>User</th>
 				<td>${leaveRequest.user.fullName}</td>
+			</tr>
+			<tr>
+				<th>Leave type</th>
+				<td>
+					<c:choose>
+						<c:when test="${leaveRequest.leaveType != null}">
+							<c:out value="${leaveRequest.leaveType.name}" /> (<c:out value="${leaveRequest.leaveType.code}" />)
+						</c:when>
+						<c:otherwise>— (legacy)</c:otherwise>
+					</c:choose>
+				</td>
 			</tr>
 			<tr>
 				<th>Start date</th>
@@ -43,13 +64,26 @@
 			</tr>
 		</table>
 
-		<c:if test="${(sessionScope.account.role == 'MANAGER' || sessionScope.account.role == 'SUPER_ADMIN') && leaveRequest.status == 'PENDING'}">
-			<form action="${pageContext.request.contextPath}/leave/approve" method="post" style="margin-top:10px;">
+		<c:if test="${sessionScope.account.role == 'EMPLOYEE' && leaveRequest.status == 'PENDING'}">
+			<p style="margin-top:10px;">
+				<a href="${pageContext.request.contextPath}/leave/edit?id=${leaveRequest.id}">Edit</a>
+			</p>
+			<form method="post" action="${pageContext.request.contextPath}/leave/cancel" style="margin-top:10px;">
 				<input type="hidden" name="id" value="${leaveRequest.id}" />
-				<button type="submit">Approve</button>
+				<button type="submit">Cancel</button>
+			</form>
+		</c:if>
+
+		<c:if test="${(sessionScope.account.role == 'MANAGER' || sessionScope.account.role == 'SUPER_ADMIN') && leaveRequest.status == 'PENDING'}">
+			<form method="post" style="margin-top:10px;">
+				<input type="hidden" name="id" value="${leaveRequest.id}" />
+				<input type="text" name="comment" placeholder="Optional comment" />
+				<button type="submit" formaction="${pageContext.request.contextPath}/leave/approve">Approve</button>
+				<button type="submit" formaction="${pageContext.request.contextPath}/leave/reject">Reject</button>
 			</form>
 		</c:if>
 	</c:if>
+</main>
 </body>
 </html>
 

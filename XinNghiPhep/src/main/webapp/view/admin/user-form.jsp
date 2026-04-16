@@ -5,10 +5,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
     <meta charset="UTF-8">
     <title>User Form</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
 
 <h2>User Form</h2>
 
@@ -45,8 +47,13 @@
     </select>
     <br/><br/>
 
+    Remaining Leave Days:
+    <input type="number" name="remainingDays" min="0" value="${user == null ? 12 : leaveRemainingDays}" />
+    <br/><br/>
+
     <button type="submit">Save</button>
 </form>
 
+</main>
 </body>
 </html>

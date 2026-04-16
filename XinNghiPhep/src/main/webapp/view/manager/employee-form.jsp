@@ -5,10 +5,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
     <meta charset="UTF-8">
     <title>Employee Form</title>
 </head>
-<body>
+<body class="app-page">
+<main class="page-card">
 
 <h2>Employee Form</h2>
 
@@ -41,5 +43,6 @@
     <button type="submit">Save</button>
 </form>
 
+</main>
 </body>
 </html>

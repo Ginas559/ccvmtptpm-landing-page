@@ -2,6 +2,8 @@ package nhom13.vn.dao.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import nhom13.vn.config.JPAConfig;
 import nhom13.vn.dao.IUserDao;
@@ -185,6 +187,71 @@ public class UserDaoImpl implements IUserDao {
             return em.createQuery(jpql, User.class)
                     .setParameter("roles", roles)
                     .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+    
+    @Override
+    public boolean updatePasswordForSelf(int userId, String oldPassword, String newPassword) {
+        EntityManager em = JPAConfig.getEntityManager();
+        EntityTransaction trans = em.getTransaction();
+
+        try {
+            trans.begin();
+
+            User user;
+            try {
+                user = em.createQuery(
+                                "SELECT u FROM User u WHERE u.id = :id AND u.password = :oldPw AND u.status = 1",
+                                User.class
+                        )
+                        .setParameter("id", userId)
+                        .setParameter("oldPw", oldPassword)
+                        .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                        .getSingleResult();
+            } catch (NoResultException e) {
+                trans.rollback();
+                return false;
+            }
+
+            user.setPassword(newPassword);
+
+            trans.commit();
+            return true;
+        } catch (Exception e) {
+            if (trans.isActive()) {
+                trans.rollback();
+            }
+            return false;
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public boolean updatePasswordByAdmin(int targetUserId, String newPassword) {
+        EntityManager em = JPAConfig.getEntityManager();
+        EntityTransaction trans = em.getTransaction();
+
+        try {
+            trans.begin();
+
+            User user = em.find(User.class, targetUserId, LockModeType.PESSIMISTIC_WRITE);
+            if (user == null || user.getStatus() != 1) {
+                trans.rollback();
+                return false;
+            }
+
+            user.setPassword(newPassword);
+
+            trans.commit();
+            return true;
+        } catch (Exception e) {
+            if (trans.isActive()) {
+                trans.rollback();
+            }
+            return false;
         } finally {
             em.close();
         }

@@ -22,6 +22,9 @@ public class User implements Serializable {
     @Column(columnDefinition = "nvarchar(200)")
     private String fullName;
 
+    @Column(length = 500)
+    private String avatarUrl;
+
     private String role; // Super Admin, Manager, Employee
     private int status; // Trạng thái tài khoản
 
@@ -72,6 +75,14 @@ public class User implements Serializable {
 		this.fullName = fullName;
 	}
 
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
+
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
+	}
+
 	public String getRole() {
 		return role;
 	}
@@ -105,6 +116,4 @@ public class User implements Serializable {
 	}
 
     // Constructors, Getters, Setters [10]
-    
-    
 }

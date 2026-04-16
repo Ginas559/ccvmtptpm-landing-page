@@ -36,6 +36,7 @@ public class LeaveApproveController extends HttpServlet {
         }
 
         String idRaw = req.getParameter("id");
+        String note = req.getParameter("comment");
         int leaveId;
         try {
             leaveId = Integer.parseInt(idRaw);
@@ -47,7 +48,7 @@ public class LeaveApproveController extends HttpServlet {
             return;
         }
 
-        boolean approved = service.approveForViewer(leaveId, user);
+        boolean approved = service.approveForViewer(leaveId, user, note);
         if (approved) {
             resp.sendRedirect(req.getContextPath() + "/leave/pending?msg=approved");
             return;

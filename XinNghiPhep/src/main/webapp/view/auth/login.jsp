@@ -3,10 +3,12 @@
 
 <html>
 <head>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard-theme.css">
 <title>Login</title>
 </head>
 
-<body>
+<body class="auth-page">
+<main class="auth-card">
 
 	<h2>Login</h2>
 
@@ -30,5 +32,6 @@
 	<a href="${pageContext.request.contextPath}/view/auth/signup.jsp"> Sign
 		Up </a>
 
+</main>
 </body>
 </html>
